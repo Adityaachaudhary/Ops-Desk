@@ -1,0 +1,26 @@
+{% import "_macros.html" as m with context %}
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}Operations Intelligence{% endblock %} · Prozo</title>
+<link rel="stylesheet" href="/static/style.css"></head>
+<body><div class="shell">
+<aside class="side">
+ <div class="brand"><div class="brand-mark">P</div><div><b>prozo</b><span>Operations Intelligence</span></div></div>
+ <nav class="nav">
+  <a href="/" class="{{ 'on' if active=='home' }}">Overview</a>
+  <div class="nav-h">AUTOMATIONS</div>
+  {% for k, mod in modules.items() %}
+  <a href="{{ mod.path if mod.enabled else '/' }}" class="{{ 'on' if active==k }} {{ 'off' if not mod.enabled }}" {% if not mod.enabled %}title="Module unavailable: {{ mod.error }}"{% endif %}>{{ mod.name }}<small>{{ mod.case }}</small></a>
+  {% endfor %}
+  <div class="nav-h">SYSTEM</div>
+  <a href="/jobs" class="{{ 'on' if active=='jobs' }}">All jobs</a>
+ </nav>
+ <div class="side-foot">Jobs run in the background and survive page reloads and restarts.</div>
+</aside>
+<main class="main">
+ {% if error %}<div class="banner err" role="alert">{{ error }}</div>{% endif %}
+ {% block content %}{% endblock %}
+</main></div>
+<div class="modal" id="modal"><span class="x">&times;</span><img alt="Parcel frame"></div>
+<script src="/static/app.js"></script>
+</body></html>

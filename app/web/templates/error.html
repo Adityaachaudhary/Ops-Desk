@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% block content %}
+<div class="page-h"><div><h1>{{ title }}</h1><p>{{ message }}</p></div><a class="btn primary" href="/">Back to overview</a></div>
+{% if detail %}<div class="card"><div class="card-h"><h2>Technical detail</h2></div><pre class="mono small" style="white-space:pre-wrap;margin:0">{{ detail }}</pre><p class="small muted" style="margin-bottom:0">The full traceback is printed in the terminal running the app.</p></div>{% endif %}
+{% endblock %}

@@ -1,0 +1,12 @@
+{% import "_macros.html" as m with context %}
+{% for r in rows %}
+<tr data-status="{{ r.status }}">
+ <td><img class="thumb" loading="lazy" src="/parcel/jobs/{{ job.id }}/thumb/{{ r.filename|urlencode }}" data-full="/parcel/jobs/{{ job.id }}/image/{{ r.filename|urlencode }}" alt=""></td>
+ <td class="small" style="max-width:220px;word-break:break-all">{{ r.filename }}</td>
+ <td class="mono">{{ r.awb or '—' }}</td>
+ <td class="num nowrap">{{ ('%.3g' % r.weight_kg ~ ' kg') if r.weight_kg is not none else '—' }}</td>
+ <td class="mono nowrap">{{ r.dimensions or '—' }}</td>
+ <td>{{ m.pill(r.status) }}</td>
+ <td class="num">{{ ('%.0f' % r.confidence) if r.confidence else '—' }}</td>
+ <td class="reason">{{ r.notes }}</td></tr>
+{% endfor %}

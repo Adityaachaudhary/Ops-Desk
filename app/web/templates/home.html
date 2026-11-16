@@ -1,0 +1,22 @@
+{% extends "base.html" %}{% block title %}Overview{% endblock %}{% block content %}
+<div class="page-h"><div><h1>Operations desk</h1><p>Parcel reads, statutory filings and daily margins - three automations, one place, honest flags instead of guesses.</p></div></div>
+<div class="cols c3">
+ <section class="card mod {{ '' if modules.parcel.enabled else 'off' }}"><div class="case">Case 1 · Image + OCR</div><h2>Parcel Intelligence</h2>
+  <p>Upload scanner frames in bulk; get AWB, weight and dimensions as CSV, with a status flag whenever a clean read is not possible.</p>
+  <div class="row"><a class="btn primary" href="/parcel">Open</a></div>
+  <div class="metric">{% if parcel %}Last batch: <b>{{ parcel.ok or 0 }}</b> of <b>{{ parcel.n }}</b> clean reads{% else %}{{ stats.parcel }} job(s) so far{% endif %}</div></section>
+ <section class="card mod {{ '' if modules.compliance.enabled else 'off' }}"><div class="case">Case 2 · Document matching</div><h2>Compliance Check</h2>
+  <p>Match wagesheet deductions against PF and ESIC ECR filings, employee by employee: right person, right identifier, right amount.</p>
+  <div class="row"><a class="btn primary" href="/compliance">Open</a></div>
+  <div class="metric">{% if comp_sum %}Last run: <b>{{ comp_sum.fully_compliant }}</b> of <b>{{ comp_sum.employees }}</b> fully compliant{% else %}{{ stats.compliance }} job(s) so far{% endif %}</div></section>
+ <section class="card mod {{ '' if modules.pnl.enabled else 'off' }}"><div class="case">Case 3 · Analytics + alerts</div><h2>FC P&amp;L Monitor</h2>
+  <p>Daily CM1 / CM2 per fulfilment centre, anomaly log with plain-language insight, and a colour-coded digest to each manager.</p>
+  <div class="row"><a class="btn primary" href="/pnl">Open</a></div>
+  <div class="metric">{{ stats.pnl }} run(s) so far</div></section>
+</div>
+{% if strip %}
+<div class="card"><div class="card-h"><h2>Latest status by FC</h2><a class="small" href="/pnl/jobs/{{ last_pnl.id }}">Open dashboard</a></div>
+ <div class="strip">{% for s in strip %}<div class="fcc {{ s.colour }}"><b>{{ s.fc }}</b><div class="v">{{ ('%.1f%%' % s.cm2_pct) if s.cm2_pct is not none else 'n/a' }}</div><small>CM2 · {{ s.day }}</small></div>{% endfor %}</div></div>
+{% endif %}
+<div class="card"><div class="card-h"><h2>Recent jobs</h2><a class="small" href="/jobs">View all</a></div>{{ m.jobs_table(recent) }}</div>
+{% endblock %}

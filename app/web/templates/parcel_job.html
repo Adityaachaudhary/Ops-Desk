@@ -1,0 +1,13 @@
+{% extends "base.html" %}{% block title %}Parcel batch{% endblock %}{% block content %}
+{% call m.job_head(job, '/parcel', 'Parcel Intelligence') %}data-rows="/parcel/jobs/{{ job.id }}/rows"{% endcall %}
+{% if job.status in ('completed','completed_with_errors') %}
+<div class="row" style="margin:14px 0"><a class="btn primary" href="/parcel/jobs/{{ job.id }}/download">Download CSV</a>
+ <form method="post" action="/jobs/{{ job.id }}/delete" onsubmit="return confirm('Delete this batch and its images?')"><button class="btn danger">Delete batch</button></form></div>
+{% endif %}
+<div class="card"><div class="card-h"><h2>Records</h2><input id="q" type="search" placeholder="Search AWB, file, note…" style="width:240px"></div>
+ <div class="tag-row">{% for s, n in counts %}<button class="chip" data-chip="{{ s }}" title="{{ help[s] }}">{{ s|pretty }}<b>{{ n }}</b></button>{% endfor %}</div>
+ <div class="tw"><table data-filterable><thead><tr><th>Frame</th><th>File</th><th>AWB</th><th class="num">Weight</th><th>Dimensions</th><th>Status</th><th class="num">Conf.</th><th>Why / notes</th></tr></thead>
+ <tbody id="live-rows">{% include "_parcel_rows.html" %}</tbody></table></div>
+ {% if not rows %}<p class="muted">Records appear here as images are processed.</p>{% endif %}</div>
+{% if events %}<div class="log">{% for e in events %}<div class="{{ e.level }}">{{ e.ts }} · {{ e.message }}</div>{% endfor %}</div>{% endif %}
+{% endblock %}

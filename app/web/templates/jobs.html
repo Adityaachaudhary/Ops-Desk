@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% block title %}Jobs{% endblock %}{% block content %}
+<div class="page-h"><div><h1>All jobs</h1><p>Every upload becomes a background job. Open one to see progress, results and downloads.</p></div></div>
+{{ m.jobs_table(recent) }}
+{% endblock %}

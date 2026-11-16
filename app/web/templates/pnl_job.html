@@ -1,0 +1,68 @@
+{% extends "base.html" %}{% block title %}FC P&L run{% endblock %}{% block content %}
+{{ m.job_head(job, '/pnl', 'FC P&L Monitor') }}
+{% if job.status in ('completed','completed_with_errors') %}
+{% for w in kpi.warnings %}<div class="banner warn">{{ w }}</div>{% endfor %}
+<div class="row" style="margin:14px 0"><a class="btn primary" href="/pnl/jobs/{{ job.id }}/download">Download Excel workbook</a><a class="btn" href="/pnl/jobs/{{ job.id }}/anomalies.csv">Anomalies CSV</a>
+ <form method="post" action="/jobs/{{ job.id }}/delete" onsubmit="return confirm('Delete this run?')"><button class="btn danger">Delete</button></form></div>
+<div class="tabs">{% for k, t in [('dashboard','Dashboard'),('anomalies','Anomalies log'),('daily','Daily P&L'),('digests','Digests'),('rules','Rules used')] %}<a class="{{ 'on' if tab==k }}" href="?tab={{ k }}">{{ t }}</a>{% endfor %}</div>
+
+{% if tab == 'dashboard' %}
+<div class="kpis">
+ <div class="kpi"><b>{{ fcs|length }}</b><span>fulfilment centres</span></div>
+ <div class="kpi bad"><b>{{ kpi.colours.Red }}</b><span>red days (CM2 &lt; 12%)</span></div>
+ <div class="kpi warn"><b>{{ kpi.colours.Yellow }}</b><span>yellow days</span></div>
+ <div class="kpi"><b>{{ kpi.colours.Blue }}</b><span>blue days (suspicious)</span></div>
+ <div class="kpi"><b>{{ kpi.severity.critical + kpi.severity.warning }}</b><span>anomalies (excl. watch)</span></div></div>
+<div class="card"><div class="card-h"><h2>Latest day by FC</h2><span class="small muted">digest status shown on each tile</span></div>
+ <div class="strip">{% for f in fcs %}{% set d = latest[f] %}{% set a = alerts.get(f) %}
+ <div class="fcc {{ d.colour }}"><b>{{ f }}</b><div class="v">{{ ('%.1f%%' % d.cm2_pct) if d.cm2_pct is not none else 'n/a' }}</div><small>CM2 · CM1 {{ ('%.1f%%' % d.cm1_pct) if d.cm1_pct is not none else 'n/a' }} · {{ d.day }}</small><br><small>{{ d.breaches }} flagged · digest: {{ (a.status|pretty) if a else '—' }}</small></div>{% endfor %}</div></div>
+<div class="card"><div class="card-h"><h2>Daily status across FCs</h2><div class="legend"><span>{{ m.dot('Red') }}</span><span>{{ m.dot('Yellow') }}</span><span>{{ m.dot('Green') }}</span><span>{{ m.dot('Blue') }}</span><span>{{ m.dot('Grey') }}</span></div></div>
+ <div class="heat" style="grid-template-columns:150px repeat({{ day_cols|length }}, minmax(26px,1fr))">
+  <div></div>{% for dc in day_cols %}<div class="hd">{{ dc }}</div>{% endfor %}
+  {% for f in fcs %}<div class="lab">{{ f }}</div>{% for dc in day_cols %}{% set d = grid[f].get(dc) %}<a class="cell {{ d.colour if d }}" {% if d %}href="?tab=anomalies&fc={{ f|urlencode }}" title="{{ f }} · {{ dc }} · {{ ('CM2 %.1f%%' % d.cm2_pct) if d.cm2_pct is not none else 'data issue' }}"{% endif %}></a>{% endfor %}{% endfor %}
+ </div></div>
+<div class="cols c2">{% for f in fcs %}<div class="chart"><h3>{{ f }} · CM2 % by day</h3>{{ charts[f]|safe }}</div>{% endfor %}</div>
+
+{% elif tab == 'anomalies' %}
+<div class="card"><div class="card-h"><h2>Flagged anomalies <span class="muted small">({{ n_anom }})</span></h2>
+ <form method="get" class="row"><input type="hidden" name="tab" value="anomalies">
+  <select name="fc" onchange="this.form.submit()"><option value="">All FCs</option>{% for f in fcs %}<option {{ 'selected' if fc_filter==f }}>{{ f }}</option>{% endfor %}</select>
+  <select name="severity" onchange="this.form.submit()"><option value="">All severities</option>{% for s in ['critical','warning','watch'] %}<option {{ 'selected' if severity==s }}>{{ s }}</option>{% endfor %}</select></form></div>
+ <div class="tw"><table><thead><tr><th>Date</th><th>FC</th><th>Line item</th><th class="num">% of revenue</th><th>Target range</th><th>Status</th><th class="num">Impact (Rs)</th><th>Insight / override</th></tr></thead><tbody>
+ {% for a in anomalies %}{% set ov = overrides.get((a.fc, a.day, a.line_item), []) %}
+ <tr><td class="nowrap">{{ a.day }}</td><td>{{ a.fc }}</td><td><b>{{ a.line_item }}</b></td><td class="num">{{ ('%.1f%%' % a.pct) if a.pct is not none else '—' }}</td><td class="nowrap">{{ a.target_range or '—' }}</td>
+  <td>{{ m.pill(a.severity, a.status) }}</td><td class="num">{{ a.impact_inr|inr }}</td>
+  <td><div class="reason">{{ a.insight }}</div>
+   {% for o in ov %}<div class="small" style="margin-top:4px"><span class="pill review">override</span> {{ o.note }} <span class="muted">— {{ o.actor }}, {{ o.ts }}</span></div>{% endfor %}
+   <details class="ins"><summary>Add manager note</summary><form method="post" action="/pnl/override" class="row" style="margin-top:6px">
+    <input type="hidden" name="job_id" value="{{ job.id }}"><input type="hidden" name="fc" value="{{ a.fc }}"><input type="hidden" name="day" value="{{ a.day }}"><input type="hidden" name="line_item" value="{{ a.line_item }}">
+    <input type="text" name="note" placeholder="e.g. planned festive overtime" required style="width:220px"><input type="text" name="actor" placeholder="your name" style="width:110px"><button class="btn sm">Save</button></form></details></td></tr>
+ {% endfor %}</tbody></table></div>
+ {% if n_anom > 600 %}<p class="small muted">Showing the first 600 rows - filter by FC or severity, or download the CSV for the full log.</p>{% endif %}</div>
+
+{% elif tab == 'daily' %}
+<div class="card"><div class="card-h"><h2>Per-day P&amp;L</h2><form method="get"><input type="hidden" name="tab" value="daily"><select name="fc" onchange="this.form.submit()">{% for f in fcs %}<option {{ 'selected' if sel==f }}>{{ f }}</option>{% endfor %}</select></form></div>
+ <div class="tw"><table><thead><tr><th>Date</th><th class="num">Revenue</th>{% for k, lab, lo, hi in keys %}<th class="num">{{ lab }} %<br><span class="muted small">{{ '%g' % lo }}–{{ '%g' % hi }}</span></th>{% endfor %}<th class="num">CM1</th><th class="num">CM1 %</th><th class="num">CM2</th><th class="num">CM2 %</th><th>Colour</th></tr></thead><tbody>
+ {% for d in daily %}<tr><td class="nowrap">{{ d.day }}</td><td class="num">{{ d.revenue|inr }}</td>
+  {% for k, lab, lo, hi in keys %}{% set v = d[k ~ '_pct'] %}<td class="num">{% if v is none %}—{% else %}<span class="pcell {{ 'hi' if v > hi else ('lo' if v < lo else '') }}">{{ '%.1f' % v }}</span>{% endif %}</td>{% endfor %}
+  <td class="num">{{ d.cm1|inr }}</td><td class="num">{{ d.cm1_pct|pct }}</td><td class="num">{{ d.cm2|inr }}</td><td class="num"><b>{{ d.cm2_pct|pct }}</b></td>
+  <td class="nowrap">{{ m.dot(d.colour) }}{% if d.data_issue %} <span class="small muted">{{ d.data_issue }}</span>{% endif %}</td></tr>{% endfor %}</tbody></table></div></div>
+
+{% elif tab == 'digests' %}
+<div class="cols c2"><div class="card"><div class="card-h"><h2>Digest preview</h2></div>
+  <div class="row" style="margin-bottom:10px"><select id="digest-pick" data-url="/pnl/jobs/{{ job.id }}/digest" style="max-width:100%">
+   {% for f in fcs %}{% for d in day_options|reverse %}{% if grid[f].get(d) and (grid[f][d].colour != 'Green' or loop.first) %}<option value="{{ f }}||{{ d }}">{{ f }} · {{ d }} · {{ grid[f][d].colour }}</option>{% endif %}{% endfor %}{% endfor %}</select>
+   <form method="post" action="/pnl/jobs/{{ job.id }}/digest/send"><input type="hidden" name="fc" id="send-fc"><input type="hidden" name="day" id="send-day"><button class="btn sm primary">Send this digest now</button></form></div>
+  <div class="digest-frame" id="digest-out"></div></div>
+ <div class="card"><div class="card-h"><h2>Delivery log</h2></div>
+  <div class="tw"><table><thead><tr><th>FC</th><th>Day</th><th>Channel</th><th>Status</th><th>Detail</th></tr></thead><tbody>
+  {% for a in all_alerts|reverse %}<tr><td>{{ a.fc }}</td><td class="nowrap">{{ a.day }}</td><td>{{ a.channel }}</td><td>{{ m.pill({'sent':'Green','dry_run':'Grey','failed':'Red'}.get(a.status,'Grey'), a.status|pretty) }}</td><td class="reason">{{ a.detail }}</td></tr>{% endfor %}</tbody></table></div>
+  <p class="small muted">Managers: {% for f, mg in managers.items() %}{{ f }} → {{ mg.manager }}{{ ', ' if not loop.last }}{% else %}none configured (data/fc_managers.json){% endfor %}</p></div></div>
+
+{% elif tab == 'rules' %}
+<div class="card"><div class="card-h"><h2>Rules and interpretations used in this run</h2></div>{% if kpi.ranges_from_file %}<p class="small muted">Target ranges were read from the uploaded workbook.</p>{% endif %}
+ <dl class="kv">{% for k, v in rules %}<dt>{{ k }}</dt><dd>{{ v }}</dd>{% endfor %}</dl></div>
+{% endif %}
+{% endif %}
+{% if events %}<div class="log">{% for e in events %}<div class="{{ e.level }}">{{ e.ts }} · {{ e.message }}</div>{% endfor %}</div>{% endif %}
+{% endblock %}

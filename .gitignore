@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+data/prozo.db*
+data/uploads/
+outputs/*
+!outputs/sample_outputs/
+.pytest_cache/

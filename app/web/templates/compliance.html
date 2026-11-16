@@ -1,0 +1,24 @@
+{% extends "base.html" %}{% block title %}Compliance Check{% endblock %}{% block content %}
+<div class="page-h"><div><h1>Wagesheet vs ECR compliance</h1><p>Confirm, employee by employee, that what was deducted in the wagesheet was deposited: right person, right identifier, right amount - separately for PF and ESIC.</p></div></div>
+<div class="cols c2">
+ <section class="card"><div class="card-h"><h2>New verification</h2></div>
+ <form method="post" action="/compliance/upload" enctype="multipart/form-data" data-busy="Uploading…">
+  <label class="f">1 · Vendor wagesheet (Excel / CSV)</label><label class="drop sm"><input type="file" name="wagesheet" accept=".xlsx,.xls,.xlsm,.csv"><b>Wagesheet</b><span>Name, UAN, IP Number, ESIC @ 0.75%, PF @ 12%</span><div class="picked"></div></label>
+  <label class="f">2 · PF ECR (PDF)</label><label class="drop sm"><input type="file" name="pf" accept=".pdf"><b>PF ECR</b><span>EPFO Electronic Challan cum Return</span><div class="picked"></div></label>
+  <label class="f">3 · ESIC ECR (PDF)</label><label class="drop sm"><input type="file" name="esic" accept=".pdf"><b>ESIC ECR</b><span>Contribution history</span><div class="picked"></div></label>
+  <label class="f">Amount rounding tolerance (Rs)</label><input type="number" name="tolerance" value="1" min="0" max="100" step="0.5" style="width:120px">
+  <span class="small muted"> differences up to this amount count as rounding, not a mismatch</span>
+  <div class="row" style="margin-top:14px"><button class="btn primary" type="submit">Verify</button>
+  {% if has_sample %}<button class="btn" formaction="/compliance/sample" formenctype="application/x-www-form-urlencoded" type="submit">Run sample (Aug-25)</button>{% endif %}</div>
+ </form></section>
+ <section class="card"><div class="card-h"><h2>How verdicts are decided</h2></div>
+  <dl class="kv"><dt>{{ m.pill('Matched') }}</dt><dd class="small">ID found, name matches, amount equal</dd>
+   <dt>{{ m.pill('Name mismatch') }}</dt><dd class="small">ID found, different person's name</dd>
+   <dt>{{ m.pill('Amount mismatch') }}</dt><dd class="small">ID and name fine; both amounts + difference shown</dd>
+   <dt>{{ m.pill('Missing') }}</dt><dd class="small">UAN / IP Number not in the ECR at all</dd>
+   <dt>{{ m.pill('Manual review') }}</dt><dd class="small">Duplicates or unreadable rows - never auto-approved</dd>
+   <dt>{{ m.pill('Not applicable') }}</dt><dd class="small">No ID and nothing deducted</dd></dl>
+  <p class="small muted">Names tolerate word order, spacing, initials and spelling variants; different first names do not pass.</p></section>
+</div>
+<div class="card"><div class="card-h"><h2>Recent verifications</h2></div>{{ m.jobs_table(history) }}</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}{% block title %}Parcel Intelligence{% endblock %}{% block content %}
+<div class="page-h"><div><h1>Parcel Intelligence</h1><p>Upload scanner frames (JPG/PNG, or a ZIP of them). Each image gets one record with AWB, weight, dimensions and a status. Unclear frames are flagged, never guessed.</p></div></div>
+{% if not ocr_ok %}<div class="banner warn"><b>OCR engine not available.</b> {{ ocr_msg }}</div>{% endif %}
+<div class="cols c2">
+ <section class="card"><div class="card-h"><h2>New batch</h2></div>
+  <form method="post" action="/parcel/upload" enctype="multipart/form-data" data-busy="Uploading…">
+   <label class="drop"><input type="file" name="files" multiple accept=".jpg,.jpeg,.png,.zip"><b>Drop images here or click to browse</b><span>Hundreds at a time are fine - processing happens in the background</span><div class="picked"></div></label>
+   <div class="row" style="margin-top:14px"><button class="btn primary" type="submit" {{ 'disabled' if not ocr_ok }}>Process images</button>
+   {% if has_sample %}<button class="btn" formaction="/parcel/sample" formenctype="application/x-www-form-urlencoded" type="submit" {{ 'disabled' if not ocr_ok }}>Run sample batch</button>{% endif %}</div>
+  </form></section>
+ <section class="card"><div class="card-h"><h2>What the statuses mean</h2></div>
+  <dl class="kv">{% for s,t in [('SUCCESS','AWB, weight and dimensions read cleanly'),('PARTIAL_EXTRACTION','Some fields read, others missing (kept)'),('LOW_CONFIDENCE','Read, but verify - OCR doubt'),('LABEL_UNREADABLE','No AWB found'),('NO_PARCEL','Empty frame'),('MULTIPLE_PARCELS','More than one parcel'),('PARTIAL_PARCEL','Parcel cut off'),('INVALID_IMAGE','Corrupt / unreadable file')] %}
+   <dt>{{ m.pill(s) }}</dt><dd class="small">{{ t }}</dd>{% endfor %}</dl></section>
+</div>
+<div class="card"><div class="card-h"><h2>Recent batches</h2></div>{{ m.jobs_table(history) }}</div>
+{% endblock %}

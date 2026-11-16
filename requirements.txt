@@ -1,0 +1,16 @@
+fastapi>=0.110
+uvicorn>=0.27
+python-multipart>=0.0.9
+jinja2>=3.1
+openpyxl>=3.1
+pdfplumber>=0.10
+rapidfuzz>=3.0
+unidecode>=1.3
+httpx>=0.25            # only used by tests
+# --- Case 1 (Parcel Intelligence) only: also needs the Tesseract binary installed on the OS ---
+pytesseract>=0.3.10
+opencv-python-headless>=4.8
+pillow>=10.0
+fpdf2>=2.7             # tests only (synthetic 300-page ECR scale test)
+pytest>=7
+numpy>=1.24

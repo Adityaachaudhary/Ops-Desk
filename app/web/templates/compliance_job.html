@@ -1,0 +1,28 @@
+{% extends "base.html" %}{% block title %}Compliance run{% endblock %}{% block content %}
+{{ m.job_head(job, '/compliance', 'Compliance Check') }}
+{% if summary %}
+<div class="row" style="margin:14px 0"><a class="btn primary" href="/compliance/jobs/{{ job.id }}/download">Download Excel report</a><a class="btn" href="/compliance/jobs/{{ job.id }}/csv">CSV</a>
+ <form method="post" action="/jobs/{{ job.id }}/delete" onsubmit="return confirm('Delete this run?')"><button class="btn danger">Delete</button></form></div>
+{% for w in job.meta.warnings %}<div class="banner warn">{{ w }}</div>{% endfor %}
+<div class="kpis"><div class="kpi"><b>{{ summary.employees }}</b><span>employees in wagesheet</span></div>
+ <div class="kpi ok"><b>{{ summary.fully_compliant }}</b><span>fully compliant (PF + ESIC)</span></div>
+ <div class="kpi {{ 'bad' if summary.needs_attention }}"><b>{{ summary.needs_attention }}</b><span>need attention</span></div></div>
+<div class="cols c2" style="margin-bottom:16px">
+ {% for key, title in [('pf','PF (UAN)'),('esic','ESIC (IP Number)')] %}
+ <div class="card"><div class="card-h"><h2>{{ title }}</h2></div><div class="tag-row">
+  {% for s in statuses %}{% if summary[key][s] %}<button class="chip" data-chip="{{ key }}:{{ s }}">{{ s }}<b>{{ summary[key][s] }}</b></button>{% endif %}{% endfor %}</div></div>
+ {% endfor %}</div>
+<div class="card"><div class="card-h"><h2>Employee verification</h2><input id="q" type="search" placeholder="Search name, UAN, IP, reason…" style="width:260px"></div>
+ <div class="tw"><table data-filterable><thead><tr><th>Employee</th><th>UAN</th><th>PF</th><th class="num">PF wagesheet</th><th class="num">PF ECR</th><th>PF reason</th><th>IP Number</th><th>ESIC</th><th class="num">ESIC wagesheet</th><th class="num">ESIC ECR</th><th>ESIC reason</th></tr></thead><tbody>
+ {% for r in rows %}<tr data-status="pf:{{ r.pf_status }}|esic:{{ r.esic_status }}">
+  <td class="nowrap"><b>{{ r.employee }}</b></td><td class="mono">{{ r.uan or '—' }}</td><td>{{ m.pill(r.pf_status) }}</td><td class="num">{{ r.pf_wagesheet }}</td><td class="num">{{ r.pf_ecr }}</td><td class="reason">{{ r.pf_reason }}</td>
+  <td class="mono">{{ r.ip_number or '—' }}</td><td>{{ m.pill(r.esic_status) }}</td><td class="num">{{ r.esic_wagesheet }}</td><td class="num">{{ r.esic_ecr }}</td><td class="reason">{{ r.esic_reason }}</td></tr>{% endfor %}
+ </tbody></table></div></div>
+{% if job.meta.extras and (job.meta.extras.PF or job.meta.extras.ESIC) %}
+<div class="card"><div class="card-h"><h2>In an ECR but not in the wagesheet</h2></div><p class="small muted">Deposited for people the wagesheet does not list - worth a look.</p>
+ <div class="tw"><table><thead><tr><th>ECR</th><th>Identifier</th><th>Name</th><th class="num">Amount</th></tr></thead><tbody>
+ {% for k in ['PF','ESIC'] %}{% for x in job.meta.extras[k] %}<tr><td>{{ k }}</td><td class="mono">{{ x.id }}</td><td>{{ x.name }}</td><td class="num">{{ x.amount }}</td></tr>{% endfor %}{% endfor %}</tbody></table></div></div>
+{% endif %}
+{% endif %}
+{% if events %}<div class="log">{% for e in events %}<div class="{{ e.level }}">{{ e.ts }} · {{ e.message }}</div>{% endfor %}</div>{% endif %}
+{% endblock %}

@@ -1,0 +1,39 @@
+{% macro pill(s, label=None) -%}
+<span class="pill {{ status_class.get(s, 'mute') }}">{{ label or (s|pretty) }}</span>
+{%- endmacro %}
+{% macro dot(c) -%}<span class="dot {{ c }}"></span>{{ c }}{%- endmacro %}
+{% macro progress(j) -%}
+{% set total = j.total_items or 0 %}
+{% set fp = (100 * j.failed_items / total)|round|int if (total and j.failed_items) else 0 %}
+{% if j.status == 'failed' %}{% set fp = 100 %}{% endif %}
+{% set okp = 0 if j.status == 'failed' else ([j.progress - fp, 0]|max) %}
+<div class="bar {{ 'run' if j.status in ('queued','processing') }}"><i style="width:{{ okp }}%"></i><i class="bad" style="width:{{ fp }}%"></i></div>
+{%- endmacro %}
+{% macro jobs_table(rows) -%}
+{% if rows %}
+<div class="tw"><table>
+<thead><tr><th>Job</th><th>Module</th><th>Status</th><th>Progress</th><th>Result</th><th>Created (UTC)</th></tr></thead><tbody>
+{% for j in rows %}
+<tr><td><a href="/{{ j.case_type }}/jobs/{{ j.id }}">{{ j.title or j.id }}</a><div class="muted small mono">{{ j.id }}</div></td>
+<td>{{ modules[j.case_type].short if j.case_type in modules else j.case_type }}</td>
+<td>{{ pill(j.status) }}</td>
+<td style="min-width:120px">{{ progress(j) }}<div class="small muted">{{ j.processed_items }} / {{ j.total_items }}{% if j.failed_items %} · <span class="failtxt">{{ j.failed_items }} failed</span>{% endif %}</div></td>
+<td class="reason">{{ j.message }}</td><td class="small nowrap muted">{{ j.created_at }}</td></tr>
+{% endfor %}</tbody></table></div>
+{% else %}<p class="muted">No jobs yet. Upload files or run the sample to see results here.</p>{% endif %}
+{%- endmacro %}
+{% macro job_head(j, back_url, back_label) -%}
+<div class="crumb"><a href="{{ back_url }}">{{ back_label }}</a> / <span class="mono">{{ j.id }}</span></div>
+<div class="card" data-job="{{ j.id }}" data-status="{{ j.status }}" {{ caller() if caller else '' }}>
+ <div class="card-h"><h2>{{ j.title }}</h2><span>{{ pill(j.status) }}</span></div>
+ {{ progress(j) }}
+ <div class="row small muted" style="justify-content:space-between;margin-top:6px"><span data-msg>{{ j.message }}</span><span data-pct>{{ j.processed_items }} / {{ j.total_items }}{% if j.failed_items %} · <span class="failtxt">{{ j.failed_items }} failed</span>{% endif %}</span></div>
+ {% if j.status == 'failed' %}
+ <div class="banner err" style="margin:12px 0 0">{{ j.message }}</div>
+ <form method="post" action="/jobs/{{ j.id }}/retry" style="margin-top:10px"><button class="btn sm">Retry job</button></form>
+ {% elif j.status == 'completed_with_errors' %}
+ <form method="post" action="/jobs/{{ j.id }}/retry" style="margin-top:10px"><button class="btn sm">Retry failed run</button></form>
+ {% endif %}
+ {% if j.status in ('queued','processing') %}<p class="small muted" style="margin:10px 0 0">Running in the background. You can close this page and come back later from the Jobs list - nothing is lost.</p>{% endif %}
+</div>
+{%- endmacro %}

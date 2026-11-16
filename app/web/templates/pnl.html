@@ -1,0 +1,20 @@
+{% extends "base.html" %}{% block title %}FC P&L Monitor{% endblock %}{% block content %}
+<div class="page-h"><div><h1>FC P&amp;L Monitor</h1><p>Upload daily revenue and cost data per fulfilment centre. The system computes CM1 / CM2, flags every breach, explains it in plain language and prepares a colour-coded digest for each FC manager.</p></div></div>
+<div class="cols c2">
+ <section class="card"><div class="card-h"><h2>New run</h2></div>
+ <form method="post" action="/pnl/upload" enctype="multipart/form-data" data-busy="Uploading…">
+  <label class="drop"><input type="file" name="file" accept=".csv,.tsv,.xlsx,.xls,.xlsm"><b>Drop the daily P&amp;L file here or click to browse</b><span>CSV / Excel · Day or Date, optional FC column, Revenue, Manpower, Packaging, Power &amp; Fuel, FC Rent, Equipment Rentals, Overheads</span><div class="picked"></div></label>
+  <label class="f">FC name (used only if the file has no FC column)</label><input type="text" name="default_fc" placeholder="e.g. FC Lucknow" style="width:260px">
+  <div class="row" style="margin-top:12px"><label class="small"><input type="checkbox" name="send" value="1" checked> Send each FC's digest to its manager (uses configured channels, otherwise saved as a dry run)</label></div>
+  <div class="row" style="margin-top:14px"><button class="btn primary" type="submit">Analyse</button>
+  {% if has_sample %}<button class="btn" formaction="/pnl/sample" formenctype="application/x-www-form-urlencoded" type="submit">Run extended sample</button>{% endif %}</div>
+ </form></section>
+ <section class="card"><div class="card-h"><h2>Delivery channels</h2></div>
+  <dl class="kv"><dt>E-mail (SMTP)</dt><dd>{{ m.pill('Green', 'configured') if smtp else m.pill('Grey', 'not configured') }}</dd>
+   <dt>Slack webhook</dt><dd>{{ m.pill('Green', 'configured') if slack else m.pill('Grey', 'not configured') }}</dd></dl>
+  <p class="small muted">Set <span class="mono">SMTP_HOST / SMTP_USER / SMTP_PASSWORD</span> and/or <span class="mono">SLACK_WEBHOOK_URL</span> (see the Case 3 README). Manager addresses live in <span class="mono">data/fc_managers.json</span>. Without a channel the digest is rendered and saved, and clearly marked <i>dry run</i>.</p>
+  <div class="card-h" style="margin-top:14px"><h2>Colour code</h2></div>
+  <div class="legend"><span>{{ m.dot('Red') }} CM2 &lt; 12%</span><span>{{ m.dot('Yellow') }} 12–14.9% or 30–32.9%</span><span>{{ m.dot('Green') }} 15–30%</span><span>{{ m.dot('Blue') }} ≥ 33% (check costs)</span></div></section>
+</div>
+<div class="card"><div class="card-h"><h2>Recent runs</h2></div>{{ m.jobs_table(history) }}</div>
+{% endblock %}

@@ -1,0 +1,263 @@
+filename,awb,weight_kg,length_cm,width_cm,height_cm,dimensions,status,needs_review,confidence,parcels_detected,notes
+10_jpeg.rf.XFK2Hy0xpa8FkMppr5ZH.jpeg,19109110324413,14.4,62.9,48.4,45.4,62.9x48.4x45.4 cm,NO_PARCEL,1,86.4,0,no parcel-like object found in frame
+11_jpeg.rf.KIhhqDHt904Av0Ngm3N2.jpeg,,,,,,,MULTIPLE_PARCELS,1,72.1,3,3 parcel-like objects in frame; overlay data cannot be tied to one parcel
+12_jpeg.rf.wM6DblJOpOxpPMlir0BR.jpeg,,7.56,58.9,43.1,33.3,58.9x43.1x33.3 cm,LABEL_UNREADABLE,1,80.8,1,"no AWB/barcode text found in the frame's overlay (text missing, covered or too blurred)"
+14408950450567-20250604011353_jpg.rf.iuZ60Q278JrHYD9iPuIo.jpg,14408950450567,0.56,15.2,20.9,5.3,15.2x20.9x5.3 cm,SUCCESS,0,65.2,1,
+14408950474332-20250610012111_jpg.rf.rBlISMyqxWJ5LC0CMZSe.jpg,14408950474332,0.72,15.5,20.9,6.6,15.5x20.9x6.6 cm,SUCCESS,0,72.4,1,
+14408950479122-20250606233822_jpg.rf.mCcsmV396YdU2gamHbas.jpg,14408950479122,0.72,15.0,20.8,5.1,15x20.8x5.1 cm,SUCCESS,0,71.8,1,
+14408952900191-20250629002618_jpg.rf.IyeNSt0u57RhPH5udeuF.jpg,14408952900191,1.16,15.0,20.9,16.9,15x20.9x16.9 cm,SUCCESS,0,78.9,1,
+14_jpeg.rf.gTr7uFaLeV7mTIz7r9W6.jpeg,,7.0,,,,,MULTIPLE_PARCELS,1,35.9,2,weight unit missing; read as kg; 2 parcel-like objects in frame; overlay data cannot be tied to one parcel
+152907240809514-20250609194849_jpg.rf.fhnR0y3bAXFH3zWznGW5.jpg,152907240809514,1.35,20.5,13.9,15.6,20.5x13.9x15.6 cm,SUCCESS,0,84.8,1,
+152907240809608_08_06_2025_22_30_20_jpg.rf.JVm0rYf9FW3rBYT7QuSP.jpg,152907249809608,0.74,,,,,PARTIAL_PARCEL,1,23.2,1,parcel touches the frame edge (partly visible); trailing characters 'AN3AN0' dropped from AWB (OCR noise)
+152907240810244-20250604213904_jpg.rf.WrD9kJBohjL7vZWrsFqM.jpg,152907240810244,1.23,14.3,20.4,15.4,14.3x20.4x15.4 cm,SUCCESS,0,72.5,1,
+15_jpeg.rf.iDzJUBbC2bZFM9EoKgze.jpeg,19109110324015,,59.3,33.9,23.8,59.3x33.9x23.8 cm,PARTIAL_PARCEL,1,90.5,1,parcel touches the frame edge (partly visible)
+1_jpeg.rf.TmrbSjoSNip5rNFlk3SV.jpeg,19106721621035,14.06,75.3,49.2,44.4,75.3x49.2x44.4 cm,LOW_CONFIDENCE,1,48.6,1,OCR confidence 49% is low
+4_jpeg.rf.VfthwvlCymwlZDO2NmsW.jpeg,191091103253126,11.88,60.3,39.9,40.3,60.3x39.9x40.3 cm,NO_PARCEL,1,86.2,0,no parcel-like object found in frame; AWB has 15 digits but 114 of 120 AWBs starting 1910 have 14 (digit dropped/added by OCR?)
+6_jpeg.rf.Ktd9beFov4imUSeE8xJ5.jpeg,19108610903346,,23.0,31.5,14.3,23x31.5x14.3 cm,PARTIAL_EXTRACTION,1,58.4,1,missing: weight
+7_jpeg.rf.0OlfcInn25OqfI2hMhuM.jpeg,19109116323094,,,,,,PARTIAL_EXTRACTION,1,61.2,1,"missing: weight, dimensions"
+8_jpeg.rf.65JOpuz2caGy8yMRjD5z.jpeg,19109110323433,7.02,57.0,33.8,42.4,57x33.8x42.4 cm,NO_PARCEL,1,76.2,0,no parcel-like object found in frame
+90146983102_jpg.rf.QswrXnKMqlMdbJouH5Pq.jpg,90146983102,0.73,28.2,17.7,17.3,28.2x17.7x17.3 cm,SUCCESS,0,81.9,1,
+90147261525_jpg.rf.Cu1JLbFbYImktV6LoP61.jpg,90147261525,1.19,18.3,28.4,17.4,18.3x28.4x17.4 cm,SUCCESS,0,82.1,1,
+90147986681_jpg.rf.GdTmoPupP5uzKTXmD9xo.jpg,90147986681,0.72,16.7,28.0,18.0,16.7x28x18 cm,SUCCESS,0,89.2,1,
+90147986736_jpg.rf.A7FJYF7DgLyPs320E34G.jpg,90147986736,1.19,19.3,28.3,17.6,19.3x28.3x17.6 cm,SUCCESS,0,90.2,1,
+90148581622_jpg.rf.ZxbidIoFslGoBerFXtD2.jpg,90148581622,1.3,17.3,28.4,17.4,17.3x28.4x17.4 cm,SUCCESS,0,63.2,1,
+90148582510_jpg.rf.ma5SPH3p9VqsTOAlODDj.jpg,90148582510,1.18,18.7,28.9,17.4,18.7x28.9x17.4 cm,SUCCESS,0,84.9,1,
+90148582716_jpg.rf.j2PxXvflaxivChtsygC3.jpg,90148582716,1.3,17.3,28.4,17.8,17.3x28.4x17.8 cm,SUCCESS,0,89.5,1,
+90148583000_jpg.rf.RGUrq1G69zk74rNe9Coy.jpg,90148583000,1.19,18.3,27.9,17.2,18.3x27.9x17.2 cm,SUCCESS,0,85.9,1,
+90149384850_jpg.rf.Ncp3R4srR0gRfBJXQKlR.jpg,90149384850,0.7,17.7,27.8,16.9,17.7x27.8x16.9 cm,SUCCESS,0,65.3,1,
+90150050115_jpg.rf.FyfLcjYNJDEEUyZeOHQO.jpg,90150050115,1.1,19.0,18.4,17.8,19x18.4x17.8 cm,SUCCESS,0,73.3,1,
+90150050340_jpg.rf.XxT7CPbNmzOOIY9FAtV4.jpg,90150050340,0.7,17.6,28.0,16.8,17.6x28x16.8 cm,SUCCESS,0,61.9,1,
+90150051412_jpg.rf.vrdnqcGM0Uj9UDACqHC2.jpg,90150051412,0.74,16.8,28.3,17.4,16.8x28.3x17.4 cm,SUCCESS,0,79.1,1,
+90164025324_jpg.rf.22HxhEEydxeznalSmpR8.jpg,77572061814,0.45,12.3,20.1,12.2,12.3x20.1x12.2 cm,SUCCESS,0,91.6,1,
+90165721542_jpg.rf.tmiPdacUZMhfjcFUKgCp.jpg,77573777455,0.82,18.2,28.1,17.3,18.2x28.1x17.3 cm,SUCCESS,0,78.1,1,
+90165721693_jpg.rf.LBUTSbC5626oeY2K6Wnc.jpg,76510433823,0.72,18.1,28.0,17.4,18.1x28x17.4 cm,SUCCESS,0,93.3,1,
+9_jpeg.rf.ZUoKvSFJK3lrZ3kd5mzz.jpeg,19108610906640,,,,,,PARTIAL_EXTRACTION,1,85.2,1,"missing: weight, dimensions"
+Different format belongs to Ekart_png.rf.BsrAfLLTmAOXMTQQp6zB.png,PROCOQ0O3K077,62.0,33.0,36.9,4.0,33x36.9x4 cm,PARTIAL_PARCEL,1,57.8,1,dimension unit missing; zero-padded integers read as mm; parcel touches the frame edge (partly visible)
+Dimensions and Image in different format_png.rf.CAbu5W6dBxxQmO8GVX0e.png,,,,,,,MULTIPLE_PARCELS,1,84.2,2,2 parcel-like objects in frame; overlay data cannot be tied to one parcel
+Dimensions has no LBH words_Dimensions in mm_png.rf.A6aDdlLgyOHHCkLnmfAP.png,19108610787894,,20.8,149.8,16.3,20.8x149.8x16.3 cm,LOW_CONFIDENCE,1,52.4,1,dimension unit missing; zero-padded integers read as mm; L*W*H (50788) disagrees with printed volume (5134809)
+Half shipment captured_png.rf.WNrelVB6aeQO3rpN0eiY.png,19108610817924,1.19,21.3,17.8,14.8,21.3x17.8x14.8 cm,NO_PARCEL,1,74.1,0,OCR zero-like glyphs read as 0; weight unit missing; integer >=100 read as grams; no parcel-like object found in frame
+Image with worker hand on it_png.rf.BIEVZtagxVrux0bDKfYR.png,152880180157016,0.42,15.5,11.1,7.7,15.5x11.1x7.7 cm,SUCCESS,0,68.0,1,
+LBH concetenated with dimensions_Also dimensions in mm_ Example L038_png.rf.ZMYTAIvfNYTsq4mkcuOf.png,31049516469061,1.25,31.8,31.4,4.4,31.8x31.4x4.4 cm,SUCCESS,0,50.8,1,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0
+LXBXH format dimensions_png.rf.kvkAhbcWrofLPb2CsqYj.png,144089529464,0.76,,,,,PARTIAL_PARCEL,1,20.8,1,parcel touches the frame edge (partly visible); trailing characters 'G4' dropped from AWB (OCR noise); AWB has 12 digits but 4 of 5 AWBs starting 1440 have 14 (digit dropped/added by OCR?)
+Multiple shipment packets in single sorter images_png.rf.CItY4df8qqgsLt5AchtU.png,31049520637826,0.72,59.1,38.0,16.8,59.1x38x16.8 cm,MULTIPLE_PARCELS,1,48.3,2,2 parcel-like objects in frame; overlay data cannot be tied to one parcel; trailing characters 'O' dropped from AWB (OCR noise)
+No Shipment ccaptured_png.rf.7xveM0Q6aPacgoxworum.png,19108610815135,,21.7,14.3,16.8,21.7x14.3x16.8 cm,MULTIPLE_PARCELS,1,46.4,2,OCR zero-like glyphs read as 0; dimension unit missing; zero-padded integers read as mm; 2 parcel-like objects in frame; overlay data cannot be tied to one parcel; L*W*H (5213) disagrees with printed volume (5382326)
+No Shipment packet captured_png.rf.1VvRtdnwIQAHs1Q83pHV.png,19108610815360,,20.8,15.3,16.7,20.8x15.3x16.7 cm,NO_PARCEL,1,87.4,0,no parcel-like object found in frame
+One more Ekart Format_png.rf.RjFc1ZG8LMmkelg5D2W8.png,,70.0,24.6,48.6,12.5,24.6x48.6x12.5 cm,LABEL_UNREADABLE,1,81.3,1,"scanner printed '2DNoRead;' instead of a barcode value; no AWB/barcode text found in the frame's overlay (text missing, covered or too blurred)"
+Shipment showing LBH values as 00_png.rf.RjUz8FS62U9fGgE7Kt4s.png,PROCHOOTIND,,,,,,LOW_CONFIDENCE,1,43.3,1,OCR confidence 43% is low
+Test in red color_png.rf.mhBudpH2mZ2NBKAb8Siv.png,77846471776,0.45,23.2,11.9,12.0,23.2x11.9x12 cm,SUCCESS,0,77.6,1,
+a6781157e0d5419233a20db73bb561a5_jpg.rf.E4J3w4Bt3yYnQ80zFGxu.jpg,77873504483,0.576,21.2,15.6,6.4,21.2x15.6x6.4 cm,SUCCESS,0,78.9,1,
+diff_format_jpeg.rf.1ZshJPmS3hUe88wWIcDT.jpeg,,,,,,,LABEL_UNREADABLE,1,95.8,1,"no AWB/barcode text found in the frame's overlay (text missing, covered or too blurred)"
+download (2)_jpeg.rf.bo0zLhZTso7FTTzLvhqL.jpeg,19108610906662,,,,,,PARTIAL_PARCEL,1,82.6,1,parcel touches the frame edge (partly visible)
+f5dafc4bff76062f11fe6ebb3dad97d9_jpg.rf.bW1ywxbuEzVDIFh3KpAM.jpg,77873372404,0.58,21.4,16.4,6.2,21.4x16.4x6.2 cm,SUCCESS,0,73.2,1,
+m_s_jpeg.rf.vVYi1jKfzUysoLLd1IIr.jpeg,775432843464,1.37,35.9,25.4,12.9,35.9x25.4x12.9 cm,MULTIPLE_PARCELS,1,76.8,2,2 parcel-like objects in frame; overlay data cannot be tied to one parcel
+ms10_jpeg.rf.4jOsJcRC8IkgZTUtY4uz.jpeg,77558439335,1.0,36.1,25.3,12.4,36.1x25.3x12.4 cm,SUCCESS,0,71.9,1,
+ms10_jpeg.rf.zLQ8uqflehDpcktl5dAj.jpeg,31049516309343,1.12,21.0,14.9,16.9,21x14.9x16.9 cm,NO_PARCEL,1,31.3,0,OCR zero-like glyphs read as 0; weight unit missing; integer >=100 read as grams; no parcel-like object found in frame; trailing characters 'ES' dropped from AWB (OCR noise)
+ms11_jpeg.rf.FhybSGSdnvyySaIVfvkK.jpeg,31049516311830,,20.7,14.3,17.2,20.7x14.3x17.2 cm,PARTIAL_EXTRACTION,1,65.2,1,missing: weight
+ms11_jpeg.rf.WFxG7kga6mTN3eLijuWJ.jpeg,90111788852,1.18,25.4,36.2,13.3,25.4x36.2x13.3 cm,SUCCESS,0,66.2,1,
+ms12_jpeg.rf.2MgzIFxmY6xfR7kyZYem.jpeg,31049516556830,1.272,35.2,25.0,17.0,35.2x25x17 cm,SUCCESS,0,70.1,1,OCR zero-like glyphs read as 0; weight unit missing; integer >=100 read as grams
+ms13_jpeg.rf.BQqLAOkFZJ8z6zfqbgmF.jpeg,310495166020171,82.252,28.0,21.2,16.5,28x21.2x16.5 cm,NO_PARCEL,1,34.8,0,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; no parcel-like object found in frame; digit glyph ambiguity in 'O@16S'; AWB has 15 digits but 71 of 78 AWBs starting 3104 have 14 (digit dropped/added by OCR?)
+ms14_jpeg.rf.uDMjvENugiuSN3z23vls.jpeg,3104951660837,,21.2,15.4,6.0,21.2x15.4x6 cm,NO_PARCEL,1,55.7,0,OCR zero-like glyphs read as 0; weight unit missing; read as kg; weight reported as zero; no parcel-like object found in frame; AWB has 13 digits but 71 of 78 AWBs starting 3104 have 14 (digit dropped/added by OCR?)
+ms15_jpeg.rf.HFPjgPKbvtU07NDuzfmt.jpeg,31049516712930,0.59,21.5,14.5,6.3,21.5x14.5x6.3 cm,SUCCESS,0,67.1,1,OCR zero-like glyphs read as 0; weight unit missing; integer >=100 read as grams
+ms16_jpeg.rf.pDY1BRXQceYETmuzX4N3.jpeg,31049516713954,6.2,,,,,PARTIAL_EXTRACTION,1,56.0,1,OCR zero-like glyphs read as 0; weight unit missing; integer >=100 read as grams; missing: dimensions
+ms17_jpeg.rf.1UYR8UXS4INtZIi4ErN9.jpeg,31049516714702,,25.3,29.7,820.2,25.3x29.7x820.2 cm,LOW_CONFIDENCE,1,42.3,1,OCR zero-like glyphs read as 0; dimension unit missing; zero-padded integers read as mm; H=820.2 cm outside plausible range; L*W*H (616306) disagrees with printed volume (200000)
+ms18_jpeg.rf.wrgfj48H4h7cbpCZuept.jpeg,31049516760213,,40.4,17.6,208.6,40.4x17.6x208.6 cm,MULTIPLE_PARCELS,1,76.1,2,dimension unit missing; zero-padded integers read as mm; 2 parcel-like objects in frame; overlay data cannot be tied to one parcel
+ms19_jpeg.rf.UqiKm7esW6BM4htO8BBC.jpeg,31049S167637235,0.212,48.3,27.8,13.8,48.3x27.8x13.8 cm,LOW_CONFIDENCE,1,35.3,1,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; AWB has letter(s) S among digits (possible OCR confusion)
+ms1_jpeg.rf.0ugoDr2FwaKAyCyM4fyr.jpeg,19108610799260,1.11,21.6,15.0,17.4,21.6x15x17.4 cm,SUCCESS,0,60.9,1,
+ms1_jpeg.rf.LlAsI8Z9qB0ejHgsv9pn.jpeg,77563772064,1.26,35.0,24.9,12.2,35x24.9x12.2 cm,SUCCESS,0,64.4,1,
+ms20_jpeg.rf.MNCyNSopRp3KV7s0thUY.jpeg,31049516800824,,36.2,27.1,14.9,36.2x27.1x14.9 cm,MULTIPLE_PARCELS,1,81.9,2,OCR zero-like glyphs read as 0; dimension unit missing; zero-padded integers read as mm; 2 parcel-like objects in frame; overlay data cannot be tied to one parcel
+ms21_jpeg.rf.z6u3Js9RzoMxrZydLe6F.jpeg,31049516801513,1.032,21.1,12.6,15.1,21.1x12.6x15.1 cm,LOW_CONFIDENCE,1,49.5,1,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; OCR confidence 49% is low
+ms22_jpeg.rf.YrYwe10KSeHBF6uKMMD2.jpeg,31049516802073,2.86,27.3,18.7,17.5,27.3x18.7x17.5 cm,MULTIPLE_PARCELS,1,66.1,2,2 parcel-like objects in frame; overlay data cannot be tied to one parcel
+ms23_jpeg.rf.AZf2RpHML9oQkHBFYNf9.jpeg,31049516802935,3.57,280.0,22.7,9.6,280x22.7x9.6 cm,SUCCESS,0,57.2,1,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0
+ms25_jpeg.rf.tcsb1vxIXZky6tnLSAAl.jpeg,31049516831274,,44.5,17.7,10.5,44.5x17.7x10.5 cm,MULTIPLE_PARCELS,1,75.2,2,OCR zero-like glyphs read as 0; dimension unit missing; zero-padded integers read as mm; 2 parcel-like objects in frame; overlay data cannot be tied to one parcel
+ms27_jpeg.rf.QVSMWu4xl6gVZnngTWAa.jpeg,31049516908893,0.152,54.2,25.8,6.1,54.2x25.8x6.1 cm,SUCCESS,0,62.9,1,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0
+ms28_jpeg.rf.KeU4tYkZy1PzD1luqdae.jpeg,31049516910713,0.572,18.7,11.7,14.4,18.7x11.7x14.4 cm,LOW_CONFIDENCE,1,35.6,1,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; digit glyph ambiguity in '@0S72'
+ms29_jpeg.rf.WWW4bVTUfkJL0iDpgieZ.jpeg,31049516913432,854.528,28.1,21.2,17.2,28.1x21.2x17.2 cm,LOW_CONFIDENCE,1,35.8,1,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; weight digit count unexpected ('854528'); weight 854.528 kg outside plausible range
+ms2_jpeg.rf.dwYQQWgXhFNHQOAQWnZJ.jpeg,77882419215,1.21,35.3,24.1,12.2,35.3x24.1x12.2 cm,MULTIPLE_PARCELS,1,76.6,2,2 parcel-like objects in frame; overlay data cannot be tied to one parcel
+ms30_jpeg.rf.OD0wUBii5Nr9WMIZoKym.jpeg,31049516929996,,20.8,15.7,6.3,20.8x15.7x6.3 cm,PARTIAL_EXTRACTION,1,80.4,1,OCR zero-like glyphs read as 0; dimension unit missing; zero-padded integers read as mm; missing: weight
+ms31_jpeg.rf.cOTMgkL6NbvFIBeJBpzs.jpeg,,,20.7,15.7,5.9,20.7x15.7x5.9 cm,LABEL_UNREADABLE,1,44.4,1,"OCR zero-like glyphs read as 0; dimension unit missing; zero-padded integers read as mm; no AWB/barcode text found in the frame's overlay (text missing, covered or too blurred)"
+ms32_jpeg.rf.M92b5HJVL4l8cNbCmb31.jpeg,31049516935084,1.022,21.0,12.0,15.1,21x12x15.1 cm,SUCCESS,0,70.4,1,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0
+ms33_jpeg.rf.LWonY3BcM6i1tdaxjz68.jpeg,31049516988321,0.19,15.7,21.1,6.7,15.7x21.1x6.7 cm,SUCCESS,0,76.3,1,
+ms34_jpeg.rf.NEYqxyzNHPBYbGmFghFL.jpeg,,1.21,46.6,26.2,15.0,46.6x26.2x15 cm,NO_PARCEL,1,51.9,0,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; no parcel-like object found in frame
+ms35_jpeg.rf.uhAPuIGkAWtjcbmZRELD.jpeg,31049517022820,,22.3,15.4,6.3,22.3x15.4x6.3 cm,LOW_CONFIDENCE,1,40.0,1,OCR zero-like glyphs read as 0; dimension unit missing; zero-padded integers read as mm; L*W*H (2164) disagrees with printed volume (2595696)
+ms36_jpeg.rf.MGkyEK9nGL9Pd9pOC07O.jpeg,31049517027941,,20.8,15.6,805.8,20.8x15.6x805.8 cm,LOW_CONFIDENCE,1,42.2,1,OCR zero-like glyphs read as 0; dimension unit missing; zero-padded integers read as mm; H=805.8 cm outside plausible range
+ms37_jpeg.rf.TUQGlb2kcVg5IZfIVjpj.jpeg,31049517050875LHEOMEMAS,,,,,,PARTIAL_EXTRACTION,1,53.5,1,"missing: weight, dimensions"
+ms38_jpeg.rf.OLrAK7OjBx6tuwJ1ffJp.jpeg,31049517062012,,16.4,15.1,4.8,16.4x15.1x4.8 cm,LOW_CONFIDENCE,1,42.3,1,OCR zero-like glyphs read as 0; dimension unit missing; zero-padded integers read as mm; L*W*H (1189) disagrees with printed volume (1464830)
+ms39_jpeg.rf.9tuJtf10MCsiqqloay6I.jpeg,31049517089596,,50.5,29.8,20.4,50.5x29.8x20.4 cm,LOW_CONFIDENCE,1,46.9,1,OCR zero-like glyphs read as 0; dimension unit missing; zero-padded integers read as mm; L*W*H (30700) disagrees with printed volume (16236716)
+ms3_jpeg.rf.4Aaa0R9OulI0p1HGXi5s.jpeg,19108610801640,,21.8,16.6,14.2,21.8x16.6x14.2 cm,LOW_CONFIDENCE,1,48.9,1,dimension unit missing; zero-padded integers read as mm; L*W*H (5139) disagrees with printed volume (5374536)
+ms3_jpeg.rf.LPEccIT8Xsd5LMvEB8nX.jpeg,77880233561,1.31,34.2,25.0,12.5,34.2x25x12.5 cm,SUCCESS,0,78.0,1,
+ms40_jpeg.rf.zsOgJwQv19F13cX4oE1V.jpeg,31049517216882,1.28,42.4,24.6,17.3,42.4x24.6x17.3 cm,LOW_CONFIDENCE,1,32.4,1,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; digit glyph ambiguity in 'LO424'
+ms41_jpeg.rf.GIVOXdsZ9jpxI1efr2tZ.jpeg,31049517276124,1.89,47.5,22.4,17.4,47.5x22.4x17.4 cm,MULTIPLE_PARCELS,1,66.1,2,OCR zero-like glyphs read as 0; weight unit missing; integer >=100 read as grams; 2 parcel-like objects in frame; overlay data cannot be tied to one parcel
+ms42_jpeg.rf.N3e1tRSsu57yAa7j4lCG.jpeg,31049517356263,,19.6,27.9,14.6,19.6x27.9x14.6 cm,LOW_CONFIDENCE,1,46.9,1,OCR zero-like glyphs read as 0; dimension unit missing; zero-padded integers read as mm; L*W*H (7984) disagrees with printed volume (8752025)
+ms43_jpeg.rf.orsf7AfiOaGwjve5Bx2N.jpeg,31049517400610,3.6,29.9,27.8,28.9,29.9x27.8x28.9 cm,SUCCESS,0,69.0,1,
+ms44_jpeg.rf.JsNTzk7S4CH7diqFt9Es.jpeg,31049517405731,7.12,18.8,11.9,14.5,18.8x11.9x14.5 cm,NO_PARCEL,1,36.4,0,OCR zero-like glyphs read as 0; weight unit missing; integer >=100 read as grams; no parcel-like object found in frame; weight digit count unexpected ('007120')
+ms45_jpeg.rf.1QHHzgHqdHLsH9wCpfm3.jpeg,31049517406346,0.702,19.0,14.2,11.7,19x14.2x11.7 cm,NO_PARCEL,1,74.4,0,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; no parcel-like object found in frame
+ms46_jpeg.rf.lcaJcdSG0U1vFWsJ8dDE.jpeg,31049517479721,0.912,42.4,20.8,17.3,42.4x20.8x17.3 cm,NO_PARCEL,1,51.7,0,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; no parcel-like object found in frame
+ms47_jpeg.rf.i1qnkVXB1r6xAbP8vCvv.jpeg,31049517479743,0.73,19.0,11.5,14.3,19x11.5x14.3 cm,NO_PARCEL,1,38.1,0,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; no parcel-like object found in frame; trailing characters 'MAN' dropped from AWB (OCR noise)
+ms4_jpeg.rf.NUTTo4Uc1HnAns3NCtRh.jpeg,90111921023,12.0,38.3,35.3,12.8,38.3x35.3x12.8 cm,SUCCESS,0,65.5,1,
+ms4_jpeg.rf.fWJ3bBXrrT4wdS3D9UbQ.jpeg,19108610806400,,20.7,16.3,17.1,20.7x16.3x17.1 cm,LOW_CONFIDENCE,1,42.4,1,OCR confidence 42% is low
+ms5_jpeg.rf.T4hqbNuNdnADbjFYjYdu.jpeg,19108610823303,1.3,19.0,27.7,15.4,19x27.7x15.4 cm,SUCCESS,0,59.5,1,
+ms5_jpeg.rf.YbhcRiWYIgHhXpfJ1mPw.jpeg,77552045071,1.25,34.2,25.3,12.4,34.2x25.3x12.4 cm,MULTIPLE_PARCELS,1,70.9,2,2 parcel-like objects in frame; overlay data cannot be tied to one parcel
+ms6_jpeg.rf.G0oazaOksvqC0uurRgjr.jpeg,77904522485,1.16,33.5,24.5,12.4,33.5x24.5x12.4 cm,SUCCESS,0,59.6,1,
+ms6_jpeg.rf.PhNP6jQzQNP1k2HF5GvE.jpeg,19108610824644,,20.8,15.8,17.2,20.8x15.8x17.2 cm,PARTIAL_EXTRACTION,1,80.0,1,missing: weight
+ms7_jpeg.rf.EHDLSQ4QvrAAUe0Y73CJ.jpeg,77549916382,1.33,36.1,24.9,12.9,36.1x24.9x12.9 cm,MULTIPLE_PARCELS,1,71.7,2,2 parcel-like objects in frame; overlay data cannot be tied to one parcel
+ms7_jpeg.rf.QaSPi4qTCItayPqJ9QIG.jpeg,19108616829651,,51.8,37.2,16.9,51.8x37.2x16.9 cm,LOW_CONFIDENCE,1,38.4,1,OCR zero-like glyphs read as 0; digit glyph ambiguity in 'LO518'
+ms8_jpeg.rf.3H0cGY5Ky7sSSKUMZ2DH.jpeg,77565924041,2.08,43.1,32.8,12.4,43.1x32.8x12.4 cm,SUCCESS,0,78.3,1,
+ms8_jpeg.rf.JArhKkNhYQeFPFLMqVIA.jpeg,19108618834223,1.2,20.9,15.2,17.2,20.9x15.2x17.2 cm,NO_PARCEL,1,56.9,0,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; no parcel-like object found in frame
+ms9_jpeg.rf.gIb9P7rwzVlEPot2s4vz.jpeg,77553004594,1.29,36.3,25.7,12.9,36.3x25.7x12.9 cm,MULTIPLE_PARCELS,1,77.8,2,2 parcel-like objects in frame; overlay data cannot be tied to one parcel
+ms9_jpeg.rf.pn4NvKjzxA08AUQ6Y4Hy.jpeg,31049516046611,,21.3,16.2,65.0,21.3x16.2x65 cm,LOW_CONFIDENCE,1,28.6,1,trailing characters 'SS' dropped from AWB (OCR noise); OCR confidence 48% is low
+ms_act_jpeg.rf.L1yMSjcxctGvDMuvuPi5.jpeg,90117067434,1.46,24.3,34.5,12.8,24.3x34.5x12.8 cm,SUCCESS,0,69.5,1,
+ms_jpeg.rf.N1uTAyr0O3lsqzPhjThL.jpeg,77553206695,1.32,35.9,24.7,12.9,35.9x24.7x12.9 cm,SUCCESS,0,70.5,1,
+ms_jpeg.rf.sY3Me8IdIeON8NnxBNST.jpeg,191067215905047,,36.4,25.1,14.7,36.4x25.1x14.7 cm,LOW_CONFIDENCE,1,55.6,1,missing: weight; AWB has 15 digits but 114 of 120 AWBs starting 1910 have 14 (digit dropped/added by OCR?)
+multiple_shipment_jpeg.rf.wjB2TEOrRVqaHvcLfCY4.jpeg,77886979726,1.25,35.9,26.7,12.4,35.9x26.7x12.4 cm,SUCCESS,0,79.0,1,
+new_format_jpeg.rf.l09DnleOSNKw3abJ8wGy.jpeg,217191936,8.5,65.8,40.2,24.3,65.8x40.2x24.3 cm,SUCCESS,0,57.0,1,
+test_jpeg.rf.2oVU5ePBWku0YwazhmSh.jpeg,19108610920290,1.79,19.8,17.9,11.0,19.8x17.9x11 cm,SUCCESS,0,73.4,1,
+weight_image_19106721560684_1748746193528_jpg.rf.H81HmQfPPmHhu9xXk1mS.jpg,,1.02,,,,,NO_PARCEL,1,29.4,0,no parcel-like object found in frame; digit glyph ambiguity in 'i'
+weight_image_19106721560684_1748746199019_jpg.rf.kHwOyFNKoBkpRUe87nda.jpg,19106721560684,,2.0,29.4,10.6,2x29.4x10.6 cm,PARTIAL_PARCEL,1,44.7,1,parcel touches the frame edge (partly visible)
+weight_image_19106721621422_1751043488982_jpg.rf.vaXG1BMwiepvQ6rPf1iX.jpg,19106721621422,,24.3,29.8,5.2,24.3x29.8x5.2 cm,PARTIAL_EXTRACTION,1,59.5,1,missing: weight
+weight_image_19106721625482_1751076430361_jpg.rf.vH67b0HgP6XddZutDgBc.jpg,19106721625482,1.0,27.5,27.2,10.3,27.5x27.2x10.3 cm,SUCCESS,0,51.9,1,
+weight_image_19106721734671_1752989470658_jpg.rf.j0gK5u6T3l3A8Vf5P2gl.jpg,19106721734671,,41.0,30.2,5.6,41x30.2x5.6 cm,PARTIAL_PARCEL,1,88.5,1,parcel touches the frame edge (partly visible)
+weight_image_19106721735323_1753170606592_jpg.rf.sEPZHY0TGji9LDfit0QX.jpg,19106721735323,1.3,39.7,26.4,11.1,39.7x26.4x11.1 cm,SUCCESS,0,65.4,1,OCR zero-like glyphs read as 0; weight unit missing; integer >=100 read as grams
+weight_image_19106721735640_1752993976948_jpg.rf.j5Zlb218okAi4JgqJQUE.jpg,19106721735640,0.57,37.6,30.8,13.0,37.6x30.8x13 cm,SUCCESS,0,67.2,1,
+weight_image_19106721735732_1753167215225_jpg.rf.eQp8yV1vsZ1bquJhetDS.jpg,19106721735732,0.34,35.1,38.7,7.9,35.1x38.7x7.9 cm,SUCCESS,0,61.8,1,
+weight_image_19106721735894_1753090355660_jpg.rf.F4lxugmszJqO9sxQ3biz.jpg,,,,,,,LABEL_UNREADABLE,1,86.3,1,"no AWB/barcode text found in the frame's overlay (text missing, covered or too blurred)"
+weight_image_19106721736712_1753101993433_jpg.rf.pjUJiwr1min2qpEA7fIQ.jpg,19106721736712,0.76,31.3,41.6,9.3,31.3x41.6x9.3 cm,LOW_CONFIDENCE,1,26.5,1,trailing characters 'MOS' dropped from AWB (OCR noise); OCR confidence 44% is low
+weight_image_19106721736760_1753166505772_jpg.rf.BgXdYiZFYGJilBNYrBL6.jpg,19106721736760,0.792,41.3,20.6,14.1,41.3x20.6x14.1 cm,SUCCESS,0,65.4,1,OCR zero-like glyphs read as 0; weight unit missing; integer >=100 read as grams
+weight_image_19106721737036_1753342818731_jpg.rf.VVH2CPJnswNeE6jN6Vwi.jpg,,0.58,23.9,19.7,10.3,23.9x19.7x10.3 cm,LABEL_UNREADABLE,1,57.9,1,"weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; no AWB/barcode text found in the frame's overlay (text missing, covered or too blurred)"
+weight_image_19106721737143_1753163854425_jpg.rf.CLeCxM1CwNNXHIlmrmi1.jpg,19106721737143,,30.6,43.0,5.4,30.6x43x5.4 cm,PARTIAL_EXTRACTION,1,65.7,1,missing: weight
+weight_image_19106721738215_1753165727849_jpg.rf.bVOz1i0th4RFNHc18vFA.jpg,19106721738215,1.31,45.3,33.3,8.6,45.3x33.3x8.6 cm,SUCCESS,0,52.0,1,
+weight_image_19106721738322_1753093738512_jpg.rf.oBrR1Nj8nVU7sFxkcxQd.jpg,19106721738322,0.54,26.6,43.0,8.0,26.6x43x8 cm,LOW_CONFIDENCE,1,20.9,1,OCR zero-like glyphs read as 0; trailing characters 'KH' dropped from AWB (OCR noise); OCR confidence 35% is low
+weight_image_19106721738845_1753073887011_jpg.rf.WJCT0X0ysYz1AZr16r08.jpg,19106721738845,0.56,36.2,45.4,15.7,36.2x45.4x15.7 cm,SUCCESS,0,77.9,1,
+weight_image_19106721739534_1753079298907_jpg.rf.PgVlZmnLfaM7AwSxkzVG.jpg,,,,,,,LABEL_UNREADABLE,1,74.6,1,"no AWB/barcode text found in the frame's overlay (text missing, covered or too blurred)"
+weight_image_19106721739932_1753249641009_jpg.rf.S2qqBVEpyacsRh72MWTs.jpg,19106721739932,0.441,31.3,21.8,8.9,31.3x21.8x8.9 cm,NO_PARCEL,1,47.8,0,no parcel-like object found in frame; L*W*H (6073) disagrees with printed volume (3530)
+weight_image_19106721740072_1753072231963_jpg.rf.VKeVyqVe4JaXHvHllnhb.jpg,19106721740072,0.62,40.0,37.0,12.8,40x37x12.8 cm,LOW_CONFIDENCE,1,45.0,1,trailing characters 'FE' dropped from AWB (OCR noise)
+weight_image_19106721740466_1753183473092_jpg.rf.AMyVlp41wtS6kTs6gadm.jpg,19106721740466,0.56,21.7,36.1,7.4,21.7x36.1x7.4 cm,SUCCESS,0,85.0,1,
+weight_image_19106721741063_1753100291293_jpg.rf.qdDMkWX6Mc8FNyNSsq6c.jpg,19106721741063,0.72,32.2,21.4,11.5,32.2x21.4x11.5 cm,SUCCESS,0,71.1,1,
+weight_image_19106721741192_1753620951447_jpg.rf.XQms9VlK0H2hOGUh64RE.jpg,19106721741192,0.65,,,,,MULTIPLE_PARCELS,1,45.2,2,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; 2 parcel-like objects in frame; overlay data cannot be tied to one parcel; digit glyph ambiguity in 'OG8S'; digit glyph ambiguity in 'G309'
+weight_image_19106721741203_1753158093027_jpg.rf.pyNanMh7R14086UEkHfi.jpg,19106721741203,0.33,38.3,24.4,11.4,38.3x24.4x11.4 cm,LOW_CONFIDENCE,1,25.6,1,trailing characters 'OE' dropped from AWB (OCR noise); OCR confidence 43% is low
+weight_image_19106721742150_1753081788792_jpg.rf.H0FGc92fcXHISJBnJ1js.jpg,19106721742150,0.46,30.9,37.1,7.4,30.9x37.1x7.4 cm,SUCCESS,0,61.5,1,
+weight_image_19106721742684_1753168790117_jpg.rf.jxSVbOTemc1kj0PNRqck.jpg,19106721742684,0.6,44.6,30.8,5.1,44.6x30.8x5.1 cm,SUCCESS,0,50.3,1,
+weight_image_19106721742905_1753298448829_jpg.rf.VaGBK7GV9RRv8xYDroNE.jpg,19106721742905,,32.5,20.6,10.4,32.5x20.6x10.4 cm,LOW_CONFIDENCE,1,42.3,1,L*W*H (6963) disagrees with printed volume (3955)
+weight_image_19106721742953_1753194920844_jpg.rf.ysQzC7lgCfWJXmz0nfnX.jpg,19106721742953,0.37,35.1,23.4,69.0,35.1x23.4x69 cm,LOW_CONFIDENCE,1,47.4,1,OCR confidence 47% is low
+weight_image_19106721743340_1753346822761_jpg.rf.MtU22IG1jhjdHpXvNtKg.jpg,191067217433405,,49.3,41.6,6.6,49.3x41.6x6.6 cm,LOW_CONFIDENCE,1,24.2,1,OCR zero-like glyphs read as 0; dimension unit missing; zero-padded integers read as mm; L*W*H (13536) disagrees with printed volume (9604891); OCR confidence 40% is low; AWB has 15 digits but 114 of 120 AWBs starting 1910 have 14 (digit dropped/added by OCR?)
+weight_image_19106721743605_1753162475820_jpg.rf.20NNdUfuscInB34iKzro.jpg,19106721743605,0.38,33.9,31.6,6.7,33.9x31.6x6.7 cm,LOW_CONFIDENCE,1,49.7,1,OCR confidence 50% is low
+weight_image_19106721743874_1753162553878_jpg.rf.komn4yUHCvSQLnnTixnz.jpg,19106721743874,0.63,34.0,48.8,5.1,34x48.8x5.1 cm,SUCCESS,0,54.0,1,
+weight_image_19106721744095_1753159465682_jpg.rf.6ChlFx0X1YQA7bgZ5hrF.jpg,19106721744095,,34.8,22.8,8.1,34.8x22.8x8.1 cm,PARTIAL_EXTRACTION,1,87.7,1,missing: weight
+weight_image_19106721744110_1753161127286_jpg.rf.qB7gQ86H7ZlcT5koPZaL.jpg,19106721744110,0.9,37.7,35.5,7.2,37.7x35.5x7.2 cm,SUCCESS,0,86.7,1,
+weight_image_19106721744191_1753244247476_jpg.rf.XNif3hriXPEsVeREwdr7.jpg,19106721744191,0.53,30.9,448.0,4.4,30.9x448x4.4 cm,LOW_CONFIDENCE,1,29.1,1,W=448.0 cm outside plausible range; L*W*H (60910) disagrees with printed volume (5522); OCR confidence 49% is low
+weight_image_19106721744224_1753242451126_jpg.rf.2JL4sY7xq49E0rri6KNX.jpg,19106721744224,1.01,43.7,33.0,7.5,43.7x33x7.5 cm,SUCCESS,0,50.2,1,
+weight_image_19106721744235_1753164423216_jpg.rf.wQJmeCMENnwXXQPCeusE.jpg,19106721744235,0.52,34.6,35.9,6.1,34.6x35.9x6.1 cm,SUCCESS,0,62.6,1,
+weight_image_19106721744423_1753180712415_jpg.rf.M99UZetb8kJhSkwqceei.jpg,19106721744423,0.39,36.3,23.8,64.0,36.3x23.8x64 cm,SUCCESS,0,67.8,1,
+weight_image_19106721744493_1753155100459_jpg.rf.zEgx7vdgfqUNrMmUv2qH.jpg,19106721744493,0.78,34.4,23.1,7.4,34.4x23.1x7.4 cm,SUCCESS,0,61.9,1,
+weight_image_19106721744784_1753163438443_jpg.rf.QsKcPXvqwaSkoEZ9cf4F.jpg,19106721744784,0.001,1.0,1.0,1.0,1x1x1 cm,LOW_CONFIDENCE,1,23.4,1,trailing characters 'TFONON' dropped from AWB (OCR noise); weight 0.001 kg outside plausible range; OCR confidence 39% is low
+weight_image_19106721744913_1753333837002_jpg.rf.rHHy3VRUmhjjVckToRNt.jpg,19106721744913,0.27,32.2,21.6,7.0,32.2x21.6x7 cm,SUCCESS,0,70.9,1,
+weight_image_19106721745031_1753174771407_jpg.rf.X2a8U6lRXJLVPdfn3QUq.jpg,19106721745031,0.56,40.6,32.1,7.4,40.6x32.1x7.4 cm,LOW_CONFIDENCE,1,28.5,1,trailing characters 'TE' dropped from AWB (OCR noise); OCR confidence 47% is low
+weight_image_19106721745204_1753421454603_jpg.rf.iZGpQKuxpk3k0GFEh7Jw.jpg,19106721745204,0.22,23.0,36.1,45.0,23x36.1x45 cm,SUCCESS,0,62.1,1,
+weight_image_19106721745296_1753872442411_jpg.rf.f5F1HSQVD4YKLDJmd9WH.jpg,19106721745296,,33.3,20.9,108.0,33.3x20.9x108 cm,PARTIAL_EXTRACTION,1,64.8,1,missing: weight
+weight_image_19106721745414_1753151179691_jpg.rf.vW72RbYBuENjrQASVFlE.jpg,19106721745414,0.58,35.0,23.3,7.4,35x23.3x7.4 cm,SUCCESS,0,84.2,1,
+weight_image_19106721745462_1753182954724_jpg.rf.dagetZrBwgjOelwwqYbf.jpg,19106721745462,,39.2,30.5,5.9,39.2x30.5x5.9 cm,LOW_CONFIDENCE,1,35.5,1,trailing characters 'A' dropped from AWB (OCR noise)
+weight_image_19106721746663_1753169626742_jpg.rf.KYi0LgKzvaof5yF7Q1UZ.jpg,19106721746663,0.59,44.5,28.5,12.1,44.5x28.5x12.1 cm,SUCCESS,0,63.5,1,
+weight_image_19106721747142_1753416031702_jpg.rf.vAk0nfcLAxaOFAOAyKwE.jpg,19106721747142,0.56,31.4,22.0,6.3,31.4x22x6.3 cm,SUCCESS,0,80.4,1,
+weight_image_19106721747374_1753244349621_jpg.rf.3SjYeF9ZwBSpEqAm5wTq.jpg,19106721747374,,23.6,34.2,3.3,23.6x34.2x3.3 cm,PARTIAL_EXTRACTION,1,65.6,1,missing: weight
+weight_image_19106721747433_1753249371917_jpg.rf.5hPmf5SY6BV8suXfHuBN.jpg,19106721747433,0.62,32.2,20.1,12.0,32.2x20.1x12 cm,SUCCESS,0,61.4,1,
+weight_image_19106721747595_1753257829841_jpg.rf.a4vR5bjYHMG1fhcdq1VL.jpg,19106721747595,0.43,29.3,41.0,14.5,29.3x41x14.5 cm,LOW_CONFIDENCE,1,28.6,1,L*W*H (17419) disagrees with printed volume (8796); OCR confidence 48% is low
+weight_image_19106721747606_1753263397123_jpg.rf.PayRjzUV7rkp2LgCHwks.jpg,19106721747606,,23.8,29.2,72.0,23.8x29.2x72 cm,PARTIAL_EXTRACTION,1,51.6,1,missing: weight
+weight_image_19106721748376_1753259138769_jpg.rf.i0ETCDVobHPT3Gv11UKq.jpg,19106721748376,,32.3,42.5,5.0,32.3x42.5x5 cm,LOW_CONFIDENCE,1,37.6,1,trailing characters 'OOSO' dropped from AWB (OCR noise)
+weight_image_19106721748424_1753684855782_jpg.rf.cEcvYbBAABQNz4tNxiQU.jpg,19106721748424,8.55,33.7,18.5,7.8,33.7x18.5x7.8 cm,LOW_CONFIDENCE,1,28.0,1,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; digit glyph ambiguity in '018S'; OCR confidence 47% is low
+weight_image_19106721748450_1753272368580_jpg.rf.1rcwCzT8UuwSSO0zHHSv.jpg,19106721748450,,43.9,25.6,8.5,43.9x25.6x8.5 cm,LOW_CONFIDENCE,1,47.8,1,OCR confidence 48% is low
+weight_image_19106721748752_1753250533788_jpg.rf.F1UUPNZlWaPKTG9eVdtP.jpg,19106721748752,,35.3,20.8,7.6,35.3x20.8x7.6 cm,LOW_CONFIDENCE,1,29.2,1,trailing characters 'A' dropped from AWB (OCR noise); OCR confidence 49% is low
+weight_image_19106721749371_1753309155708_jpg.rf.7bxaDKtEEOhq3qIQGiKI.jpg,19106721749371,,40.2,31.5,14.7,40.2x31.5x14.7 cm,LOW_CONFIDENCE,1,44.0,1,OCR confidence 44% is low
+weight_image_19106721749721_1753247326346_jpg.rf.X7uTtEDuI0GJZsEaBM4s.jpg,19106721749721,0.84,47.2,31.7,5.2,47.2x31.7x5.2 cm,SUCCESS,0,79.9,1,
+weight_image_19106721750012_1753353932072_jpg.rf.DPUOS5tn9n8Z3c74kp38.jpg,19106721750012,,33.3,33.7,8.9,33.3x33.7x8.9 cm,LOW_CONFIDENCE,1,24.7,1,OCR zero-like glyphs read as 0; dimension unit missing; zero-padded integers read as mm; trailing characters 'MROY' dropped from AWB (OCR noise); OCR confidence 41% is low
+weight_image_19106721750583_1753251037446_jpg.rf.5v5YDoKUD7d3JUGojeAW.jpg,19106721750583,0.36,33.5,29.0,5.0,33.5x29x5 cm,SUCCESS,0,67.4,1,
+weight_image_19106721751110_1753334524841_jpg.rf.8MjUVCnIPK7f2QrUCFZT.jpg,19106721751110,0.64,33.2,48.3,1.0,33.2x48.3x1 cm,LOW_CONFIDENCE,1,45.2,1,digit glyph ambiguity in '|'
+weight_image_19106721751950_1753332622658_jpg.rf.DM4OPLS6qa9ltS9q0ID5.jpg,19106721751950,1.0,,,,,LOW_CONFIDENCE,1,28.6,1,trailing characters 'AY' dropped from AWB (OCR noise); OCR confidence 48% is low
+weight_image_19106721752403_1753324781125_jpg.rf.RjrXHizlWWeThGv4OIdP.jpg,19106721752403,,28.7,34.0,9.1,28.7x34x9.1 cm,LOW_CONFIDENCE,1,29.8,1,trailing characters 'MPOE' dropped from AWB (OCR noise); OCR confidence 50% is low
+weight_image_19106721752506_1753331389690_jpg.rf.7LkS9ptIJRPgxlpU4Rpy.jpg,19106721752506,0.66,22.6,345.0,10.4,22.6x345x10.4 cm,LOW_CONFIDENCE,1,34.0,1,W=345.0 cm outside plausible range
+weight_image_19106721752790_1753422226163_jpg.rf.lk0Crt6px8KcaQZzuTCQ.jpg,19106721752790,0.38,21.4,34.9,5.7,21.4x34.9x5.7 cm,SUCCESS,0,64.9,1,
+weight_image_19106721752845_1753326418307_jpg.rf.sOgzV2lHxBvHlYigD2zK.jpg,19106721752845,0.37,31.1,33.3,5.9,31.1x33.3x5.9 cm,SUCCESS,0,65.7,1,
+weight_image_19106721752856_1753325905156_jpg.rf.wtyZdtF3UwjnG3QQR0aP.jpg,19106721752856,0.9,33.2,36.0,58.0,33.2x36x58 cm,SUCCESS,0,56.0,1,
+weight_image_19106721753070_1753348295272_jpg.rf.Yiz5RMfA4BVz3z3XB9wl.jpg,19106721753070,0.72,33.6,46.2,5.7,33.6x46.2x5.7 cm,LOW_CONFIDENCE,1,28.2,1,trailing characters 'IOMO' dropped from AWB (OCR noise); OCR confidence 47% is low
+weight_image_19106721753114_1753334434376_jpg.rf.truw6ALvPDsLZAGErs2n.jpg,19106721753114,0.66,31.2,19.4,10.5,31.2x19.4x10.5 cm,SUCCESS,0,73.5,1,
+weight_image_19106721753136_1753333246241_jpg.rf.Xfg2w6tUnSbc0a189iMe.jpg,19106721753136,,31.3,48.7,4.9,31.3x48.7x4.9 cm,PARTIAL_EXTRACTION,1,60.7,1,missing: weight
+weight_image_19106721754212_1753415765308_jpg.rf.yjcCSAVGOylK35oMfZUY.jpg,19106721754212,0.68,20.6,32.6,10.2,20.6x32.6x10.2 cm,SUCCESS,0,68.6,1,
+weight_image_19106721754326_1753429085412_jpg.rf.iYsFdpZifJSVX1fguXlL.jpg,19106721754326,0.34,34.5,38.6,5.7,34.5x38.6x5.7 cm,SUCCESS,0,78.4,1,
+weight_image_19106721754396_1753415497498_jpg.rf.S1BfrU7IWNAUEApQAWgs.jpg,19106721754396,0.71,50.0,30.3,9.5,50x30.3x9.5 cm,LOW_CONFIDENCE,1,31.0,1,trailing characters 'CAE' dropped from AWB (OCR noise)
+weight_image_19106721754746_1753336336652_jpg.rf.mxSD5PnDq0d2qsNILRCy.jpg,19106721754746,,31.3,31.0,6.3,31.3x31x6.3 cm,LOW_CONFIDENCE,1,29.0,1,trailing characters 'AAOTSAEE' dropped from AWB (OCR noise); OCR confidence 48% is low
+weight_image_19106721754956_1753332923585_jpg.rf.7uALFzNKeXVDcSNHSKLa.jpg,19106721754956,0.61,22.5,32.4,9.3,22.5x32.4x9.3 cm,SUCCESS,0,73.5,1,
+weight_image_19106721755284_1753368093221_jpg.rf.gbnfX3gOczYXezUCRjWT.jpg,19106721755284,,31.9,39.5,7.0,31.9x39.5x7 cm,PARTIAL_EXTRACTION,1,62.2,1,missing: weight
+weight_image_19106721755391_1753335952085_jpg.rf.M4LP17LbMgZOsHzwXlDo.jpg,19106721755391,,33.7,45.9,45.0,33.7x45.9x45 cm,LOW_CONFIDENCE,1,28.3,1,trailing characters 'AN' dropped from AWB (OCR noise); OCR confidence 47% is low
+weight_image_19106721755590_1753422007850_jpg.rf.EyKgxCuwlPqBZ5Gylbwq.jpg,19106721755590,0.5,30.1,22.4,7.1,30.1x22.4x7.1 cm,SUCCESS,0,63.0,1,
+weight_image_19106721755800_1753332336116_jpg.rf.Cemy0w83rQdCHgGUAwF1.jpg,19106721755800,,33.6,50.1,7.8,33.6x50.1x7.8 cm,PARTIAL_EXTRACTION,1,70.7,1,missing: weight
+weight_image_19106721756640_1753331194293_jpg.rf.QoTGFMydLNlngc1XOrux.jpg,19106721756640,1.96,41.4,30.8,16.2,41.4x30.8x16.2 cm,SUCCESS,0,72.6,1,
+weight_image_19106721758331_1753420613962_jpg.rf.foNgJVaBMSiSGr2liyOa.jpg,19106721758331,0.54,32.4,23.3,9.1,32.4x23.3x9.1 cm,SUCCESS,0,77.0,1,
+weight_image_19106721758434_1753416519895_jpg.rf.IJrqGHehJ8KpYuRlIRC1.jpg,19106721758434,0.42,35.1,22.3,5.6,35.1x22.3x5.6 cm,LOW_CONFIDENCE,1,46.4,1,OCR confidence 46% is low
+weight_image_19106721758633_1753416296100_jpg.rf.6tdYJKBK4KKZKeQTVuo9.jpg,19106721758633,0.33,30.2,20.5,7.6,30.2x20.5x7.6 cm,SUCCESS,0,50.8,1,
+weight_image_19106721758692_1753398426255_jpg.rf.kIchq1et6Ldcm5ukYgrR.jpg,19106721758692,0.5,30.7,21.3,6.6,30.7x21.3x6.6 cm,SUCCESS,0,63.4,1,
+weight_image_19106721758880_1753519532388_jpg.rf.yCPu0dGmHzKaUqKgGUnL.jpg,19106721758880,0.6,33.1,22.4,4.7,33.1x22.4x4.7 cm,LOW_CONFIDENCE,1,27.7,1,trailing characters 'EET' dropped from AWB (OCR noise); OCR confidence 46% is low
+weight_image_19106721759506_1753454738646_jpg.rf.0aSs5X08Kc2ufqNzbgfQ.jpg,19106721759506,0.65,32.1,30.0,9.7,32.1x30x9.7 cm,PARTIAL_PARCEL,1,74.7,1,parcel touches the frame edge (partly visible)
+weight_image_19106721760884_1753438447962_jpg.rf.pxkF30oTXALwrbOVkNHJ.jpg,19106721760884,,33.5,33.4,2.5,33.5x33.4x2.5 cm,PARTIAL_EXTRACTION,1,57.1,1,missing: weight
+weight_image_19106721760991_1753506081497_jpg.rf.sw214XM1jvilSgOiafvx.jpg,19106721760991,0.45,35.0,21.7,9.5,35x21.7x9.5 cm,SUCCESS,0,62.7,1,
+weight_image_19106721761260_1753421541104_jpg.rf.c9h7gNAvrdZ1qL3mUArV.jpg,19106721761260,0.36,32.9,20.5,6.8,32.9x20.5x6.8 cm,LOW_CONFIDENCE,1,28.1,1,trailing characters 'PN' dropped from AWB (OCR noise); OCR confidence 47% is low
+weight_image_19106721762424_1753419382378_jpg.rf.zdCefn5N46y5lNDZtjfm.jpg,19106721762424,0.34,37.3,30.2,7.3,37.3x30.2x7.3 cm,SUCCESS,0,90.6,1,
+weight_image_19106721763570_1753437864693_jpg.rf.laWHwE8bXQOAqjLy2A4r.jpg,19106721763570,1.16,33.7,43.5,9.7,33.7x43.5x9.7 cm,LOW_CONFIDENCE,1,30.3,1,trailing characters 'A' dropped from AWB (OCR noise)
+weight_image_19106721763780_1753437290531_jpg.rf.dZcSUdSDCOAoYimfMaeC.jpg,19106721763780,0.4,223.0,34.3,7.1,223x34.3x7.1 cm,LOW_CONFIDENCE,1,28.1,1,L*W*H (54307) disagrees with printed volume (4318); OCR confidence 47% is low
+weight_image_19106721763883_1753593128101_jpg.rf.HjKB0yUOHKlSnZdqgN1x.jpg,19106721763883,1.0,42.1,32.3,10.9,42.1x32.3x10.9 cm,SUCCESS,0,57.8,1,
+weight_image_19106721764642_1753525087633_jpg.rf.j9H30varcvP4rOdEHhPL.jpg,191067217646427,0.68,26.3,33.9,13.1,26.3x33.9x13.1 cm,LOW_CONFIDENCE,1,70.9,1,AWB has 15 digits but 114 of 120 AWBs starting 1910 have 14 (digit dropped/added by OCR?)
+weight_image_19106721764745_1753706495274_jpg.rf.dcCTrPYRjVlr67MWXH5Z.jpg,19106721764745,0.662,37.3,25.5,9.4,37.3x25.5x9.4 cm,SUCCESS,0,70.8,1,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0
+weight_image_19106721765213_1753503037662_jpg.rf.ipg32rgfehcpMseCnfj8.jpg,19106721765213,0.97,34.4,46.1,6.6,34.4x46.1x6.6 cm,LOW_CONFIDENCE,1,38.5,1,OCR confidence 38% is low
+weight_image_19106721765423_1753520441493_jpg.rf.QjMFYicwn6xHr6yPp49l.jpg,19106721765423,1.88,44.8,25.4,24.5,44.8x25.4x24.5 cm,SUCCESS,0,56.1,1,
+weight_image_19106721766812_1753775518021_jpg.rf.zVH1Sfo6o1f3abLpsPAX.jpg,19106721766812,3.84,473.0,303.0,4.0,473x303x4 cm,LOW_CONFIDENCE,1,22.1,1,L=473.0 cm outside plausible range; W=303.0 cm outside plausible range; OCR confidence 37% is low
+weight_image_19106721767781_1753599914087_jpg.rf.1tofQiI4tf9GZhCAzQe3.jpg,19106721767781,,285.0,442.0,1.0,285x442x1 cm,LOW_CONFIDENCE,1,21.4,1,OCR zero-like glyphs read as 0; W=442.0 cm outside plausible range; OCR confidence 36% is low
+weight_image_19106721770345_1753874247486_jpg.rf.4ANGbBxDgCsn9dootsak.jpg,1910672177034,0.35,36.1,30.2,4.2,36.1x30.2x4.2 cm,LOW_CONFIDENCE,1,20.2,1,OCR zero-like glyphs read as 0; weight unit missing; integer >=100 read as grams; trailing characters 'SSY' dropped from AWB (OCR noise); OCR confidence 34% is low; AWB has 13 digits but 114 of 120 AWBs starting 1910 have 14 (digit dropped/added by OCR?)
+weight_image_19106721772132_1753685066212_jpg.rf.GZToCbc71VPw48FzBHpx.jpg,191067217721324,0.57,33.0,42.3,4.0,33x42.3x4 cm,LOW_CONFIDENCE,1,53.0,1,AWB has 15 digits but 114 of 120 AWBs starting 1910 have 14 (digit dropped/added by OCR?)
+weight_image_19108610775880_1746905803767_jpg.rf.Gp7myplMQ8uv3uvZWxRf.jpg,19108610775880,,17.7,20.5,14.7,17.7x20.5x14.7 cm,PARTIAL_EXTRACTION,1,83.8,1,missing: weight
+weight_image_19108610787894_1747578005825_jpg.rf.FXqGXF2T6xTWKTnTEwwX.jpg,19108610787894,,20.8,14.8,16.3,20.8x14.8x16.3 cm,LOW_CONFIDENCE,1,50.5,1,dimension unit missing; zero-padded integers read as mm; L*W*H (5018) disagrees with printed volume (5134809)
+weight_image_19108610790602_1747673941397_jpg.rf.mYbXfMZzuztdRoT7kf7n.jpg,19108610790602,1.14,27.6,19.4,14.3,27.6x19.4x14.3 cm,SUCCESS,0,63.4,1,
+weight_image_31049517486216_1751199581712_jpg.rf.jpWlNWuEDHriijwIIvCi.jpg,31049517486216,1.412,40.2,31.8,9.6,40.2x31.8x9.6 cm,SUCCESS,0,72.8,1,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0
+weight_image_31049517513225_1751191129438_jpg.rf.vzOrfS91Z9t7W7Oi3ma7.jpg,31049517513225,0.162,21.3,15.3,6.2,21.3x15.3x6.2 cm,NO_PARCEL,1,71.2,0,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; no parcel-like object found in frame
+weight_image_31049517513225_1751191130164_jpg.rf.YBzOuwL6lUg0jRcimwFu.jpg,31049517513225,0.162,21.3,15.3,6.2,21.3x15.3x6.2 cm,NO_PARCEL,1,74.5,0,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; no parcel-like object found in frame
+weight_image_31049517513343_1751190359037_jpg.rf.RDXYDE6EFqwELR4rxzdk.jpg,31649517513343,0.17,21.1,15.4,6.2,21.1x15.4x6.2 cm,NO_PARCEL,1,28.4,0,OCR zero-like glyphs read as 0; weight unit missing; integer >=100 read as grams; no parcel-like object found in frame; trailing characters 'A' dropped from AWB (OCR noise); AWB prefix 3164 is rare in this batch while 3104 is common (78x) - one digit may be misread
+weight_image_31049517513343_1751190369420_jpg.rf.3OzKsF4oV00hfo5Ozj2Q.jpg,31049517513343,0.172,21.1,15.4,6.2,21.1x15.4x6.2 cm,SUCCESS,0,64.2,1,OCR zero-like glyphs read as 0; weight unit missing; integer >=100 read as grams
+weight_image_31049517513413_1751190359613_jpg.rf.t5TWHoiYvt1vv3oSTfmF.jpg,31049517513413,0.212,21.4,15.4,6.1,21.4x15.4x6.1 cm,LOW_CONFIDENCE,1,45.6,1,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; OCR confidence 46% is low
+weight_image_31049517513413_1751190361265_jpg.rf.AeMEie43C82H9GsedUnG.jpg,31049517513413,0.212,21.4,15.4,6.1,21.4x15.4x6.1 cm,NO_PARCEL,1,58.3,0,OCR zero-like glyphs read as 0; weight unit missing; integer >=100 read as grams; no parcel-like object found in frame
+weight_image_31049517513413_1751190368785_jpg.rf.rjFJNBAg9kc7IYYGhaz1.jpg,31049517513413,0.212,21.4,15.4,6.1,21.4x15.4x6.1 cm,SUCCESS,0,65.3,1,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0
+weight_image_31049517513446_1751190363116_jpg.rf.E8MUglXwhyyzvxPOfMpa.jpg,31049517513446,7.128,19.0,12.0,14.2,19x12x14.2 cm,NO_PARCEL,1,38.4,0,OCR zero-like glyphs read as 0; weight unit missing; integer >=100 read as grams; no parcel-like object found in frame; weight digit count unexpected ('007128')
+weight_image_31049517513446_1751190366608_jpg.rf.F2JPIHWSk8oZ0xVlOytF.jpg,31049517513446,7.128,19.0,12.0,14.2,19x12x14.2 cm,LOW_CONFIDENCE,1,36.1,1,OCR zero-like glyphs read as 0; weight unit missing; integer >=100 read as grams; weight digit count unexpected ('007128')
+weight_image_31049517513553_1751190361506_jpg.rf.lvcOOlCHlWsSgl80XdnG.jpg,310495175135,0.832,18.8,12.0,14.3,18.8x12x14.3 cm,LOW_CONFIDENCE,1,32.8,1,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; trailing characters 'S3' dropped from AWB (OCR noise); AWB has 12 digits but 71 of 78 AWBs starting 3104 have 14 (digit dropped/added by OCR?)
+weight_image_31049517513645_1751191135478_jpg.rf.yqObNoEzOjih5eAQDMXn.jpg,31049517513645,0.692,18.9,14.2,11.8,18.9x14.2x11.8 cm,NO_PARCEL,1,72.4,0,OCR zero-like glyphs read as 0; weight unit missing; integer >=100 read as grams; no parcel-like object found in frame
+weight_image_31049517513800_1751190361507_jpg.rf.9rAsH9ErHPGk85qyOPA6.jpg,310495175138,80.72,18.7,12.1,14.3,18.7x12.1x14.3 cm,LOW_CONFIDENCE,1,25.5,1,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; trailing characters 'A0CK' dropped from AWB (OCR noise); OCR confidence 42% is low; AWB has 12 digits but 71 of 78 AWBs starting 3104 have 14 (digit dropped/added by OCR?)
+weight_image_31049517513800_1751190363283_jpg.rf.CoUTNIIIK8SrnwWkcLsb.jpg,3104951751380,0.722,18.7,12.1,14.3,18.7x12.1x14.3 cm,LOW_CONFIDENCE,1,59.5,1,OCR zero-like glyphs read as 0; weight unit missing; integer >=100 read as grams; AWB has 13 digits but 71 of 78 AWBs starting 3104 have 14 (digit dropped/added by OCR?)
+weight_image_31049517513811_1751191133306_jpg.rf.yAQtRbqw4K1hAgbIUpaT.jpg,31049517513811,0.732,18.8,11.6,14.4,18.8x11.6x14.4 cm,SUCCESS,0,73.7,1,OCR zero-like glyphs read as 0; weight unit missing; integer >=100 read as grams
+weight_image_31049517513811_1751191141073_jpg.rf.aWR9cDjJHdaT5ZhprYCB.jpg,31049517513811,0.732,18.8,11.6,14.4,18.8x11.6x14.4 cm,SUCCESS,0,63.8,1,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0
+weight_image_31049517513925_1751202429308_jpg.rf.bm4qW2VUFIiTGO0YflfZ.jpg,31049517513925,20.69,,,,,NO_PARCEL,1,35.6,0,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; no parcel-like object found in frame; digit glyph ambiguity in 'QV89'; digit glyph ambiguity in 'amkee'
+weight_image_31049517513940_1751191133516_jpg.rf.NJ98cBudlYx0Tf7R9L5B.jpg,31049517513940,80.69,18.9,11.6,14.5,18.9x11.6x14.5 cm,PARTIAL_PARCEL,1,50.5,1,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; parcel touches the frame edge (partly visible)
+weight_image_31049517513940_1751191137032_jpg.rf.KFLxo2VNmeCVlHuVkBZl.jpg,3164951751394,0.69,,,,,LOW_CONFIDENCE,1,33.2,1,OCR zero-like glyphs read as 0; weight unit missing; integer >=100 read as grams; OCR confidence 33% is low; AWB prefix 3164 is rare in this batch while 3104 is common (78x) - one digit may be misread
+weight_image_31049517514010_1751189622445_jpg.rf.v4AVg1myVmRwwJh8v3J2.jpg,3104951751401,0.72,18.9,11.9,14.3,18.9x11.9x14.3 cm,LOW_CONFIDENCE,1,75.0,1,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; AWB has 13 digits but 71 of 78 AWBs starting 3104 have 14 (digit dropped/added by OCR?)
+weight_image_31049517514010_1751189624724_jpg.rf.h3rALxYTjQOghqzi3RUO.jpg,31049517514010,0.722,18.9,11.9,14.3,18.9x11.9x14.3 cm,SUCCESS,0,70.1,1,OCR zero-like glyphs read as 0; weight unit missing; integer >=100 read as grams
+weight_image_31049517515115_1751189624500_jpg.rf.hIp4JTn11dGivLYqCuID.jpg,31049517515115,1.022,21.2,12.8,15.1,21.2x12.8x15.1 cm,SUCCESS,0,59.6,1,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0
+weight_image_31049517515502_1751189625058_jpg.rf.8KNEz1BE7NdfuVuAbRs6.jpg,3104951751552,0.582,18.9,11.9,14.5,18.9x11.9x14.5 cm,LOW_CONFIDENCE,1,61.9,1,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; AWB has 13 digits but 71 of 78 AWBs starting 3104 have 14 (digit dropped/added by OCR?)
+weight_image_31049517516471_1751189623222_jpg.rf.XlVEtD2RoT92AdTSbCB5.jpg,31049517516471,0.592,18.8,11.9,14.2,18.8x11.9x14.2 cm,SUCCESS,0,59.2,1,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0
+weight_image_31049517518932_1751190364636_jpg.rf.uNDQogEaed4bYz7TE5Dj.jpg,31049517518932,0.542,18.9,11.7,6.9,18.9x11.7x6.9 cm,SUCCESS,0,62.7,1,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0
+weight_image_31049517518932_1751190365930_jpg.rf.IzzYaUq3fWQwem8REGpl.jpg,31049517518932,0.542,18.9,11.7,6.9,18.9x11.7x6.9 cm,LOW_CONFIDENCE,1,45.0,1,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; digit glyph ambiguity in '@0S42'
+weight_image_31049517518954_1751191152609_jpg.rf.Ycd7RuglxhU3ttU5zPHj.jpg,31049517518954,,19.0,11.4,14.0,19x11.4x14 cm,MULTIPLE_PARCELS,1,29.7,2,OCR zero-like glyphs read as 0; 2 parcel-like objects in frame; overlay data cannot be tied to one parcel; trailing characters 'EEE' dropped from AWB (OCR noise)
+weight_image_31049517518954_1751191162772_jpg.rf.UslFRgmK4j6DzmkWQKCI.jpg,31049517518954,0.542,19.0,11.4,14.0,19x11.4x14 cm,LOW_CONFIDENCE,1,43.1,1,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; digit glyph ambiguity in '@0S42'
+weight_image_31049517518965_1751189632569_jpg.rf.SPRC8nmW1F8xLbMOzElU.jpg,31049517518965,0.732,21.5,14.6,17.2,21.5x14.6x17.2 cm,SUCCESS,0,59.4,1,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0
+weight_image_31049517540525_1751346363037_jpg.rf.rHpwNDklkxAXRju8keFb.jpg,31049517540525,7.72,60.6,43.3,29.6,60.6x43.3x29.6 cm,MULTIPLE_PARCELS,1,36.3,2,2 parcel-like objects in frame; overlay data cannot be tied to one parcel
+weight_image_31049517546512_1751275029343_jpg.rf.Q8dKqlVYmgo5sytC8O82.jpg,31049517546512,0.562,19.0,11.9,14.2,19x11.9x14.2 cm,NO_PARCEL,1,63.8,0,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; no parcel-like object found in frame
+weight_image_31049517546512_1751275030648_jpg.rf.ieWnWSVLltcru6B8C7M5.jpg,31049517546512,0.56,19.0,11.9,14.2,19x11.9x14.2 cm,LOW_CONFIDENCE,1,34.3,1,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; trailing characters 'Q' dropped from AWB (OCR noise)
+weight_image_31049517546512_1751275031184_jpg.rf.Q1EKaGsZwhr8R1kZWG4B.jpg,31049517546512,0.562,19.0,11.9,14.2,19x11.9x14.2 cm,SUCCESS,0,64.0,1,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0
+weight_image_31049517546685_1751275864264_jpg.rf.oi1cp11ux7KnTYlW8erK.jpg,31049517546685,0.55,19.2,11.8,14.4,19.2x11.8x14.4 cm,LOW_CONFIDENCE,1,34.9,1,OCR zero-like glyphs read as 0; weight unit missing; integer >=100 read as grams; weight digit count unexpected ('000550')
+weight_image_31049517546685_1751275865437_jpg.rf.eM1HJG1RmqrNc0txowEW.jpg,31049517546685,2.55,19.2,11.8,14.4,19.2x11.8x14.4 cm,NO_PARCEL,1,68.4,0,OCR zero-like glyphs read as 0; weight unit missing; integer >=100 read as grams; no parcel-like object found in frame
+weight_image_31049517546685_1751275871818_jpg.rf.e9QKDSe1AsEOcctyR3Xm.jpg,31049517546685,0.552,19.2,11.8,14.4,19.2x11.8x14.4 cm,SUCCESS,0,70.1,1,OCR zero-like glyphs read as 0; weight unit missing; integer >=100 read as grams
+weight_image_31049517546744_1751275029967_jpg.rf.KDIwOOfruRZ2G3EhLtDZ.jpg,31649517546744,0.57,18.7,12.0,14.3,18.7x12x14.3 cm,NO_PARCEL,1,61.2,0,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; no parcel-like object found in frame; AWB prefix 3164 is rare in this batch while 3104 is common (78x) - one digit may be misread
+weight_image_31049517549883_1751275031845_jpg.rf.wDWOMV39fpixF5GDTMdq.jpg,31049517549883,0.532,19.0,12.1,14.3,19x12.1x14.3 cm,NO_PARCEL,1,67.0,0,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; no parcel-like object found in frame
+weight_image_31049517549883_1751275034744_jpg.rf.Atpabd7wdrm9AR4m0mzP.jpg,31049517549883,0.532,19.0,12.1,14.3,19x12.1x14.3 cm,SUCCESS,0,63.9,1,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0
+weight_image_31049517549883_1751275035325_jpg.rf.XRPpDKN9vcIVxGN2xKeH.jpg,3104957T7549863AEAEA,53.0,,,,,NO_PARCEL,1,43.5,0,OCR zero-like glyphs read as 0; weight unit missing; read as kg; no parcel-like object found in frame
+weight_image_31049517552204_1751275042390_jpg.rf.X85l7HMwuO2XOBx55Kem.jpg,31049517552204,0.572,19.1,11.9,14.3,19.1x11.9x14.3 cm,NO_PARCEL,1,42.1,0,weight unit missing; integer >=100 read as grams; OCR zero-like glyphs read as 0; no parcel-like object found in frame; digit glyph ambiguity in '@0S72'
+weight_image_31049517707814_1751450168224_jpg.rf.IShTJwWFW14fxrD71sZ5.jpg,31049517707814,1.34,,,,,LOW_CONFIDENCE,1,26.7,1,OCR zero-like glyphs read as 0; weight unit missing; integer >=100 read as grams; digit glyph ambiguity in 'G381'; OCR confidence 45% is low
+weight_image_31049518504775_1752430220345_jpg.rf.PsttayAhfFJO6tsIN7DV.jpg,31049518504775,2.4,45.8,25.2,25.2,45.8x25.2x25.2 cm,SUCCESS,0,58.0,1,
+weight_image_31049518913446_1752823720273_jpg.rf.G19tgfHg7EpKRzo0aEUU.jpg,31049518913446,3.39,45.3,26.2,25.3,45.3x26.2x25.3 cm,SUCCESS,0,52.6,1,
+weight_image_31049518964384_1752919235430_jpg.rf.jb6Rjiku71xsmMu0nxDt.jpg,31049518964384,11.24,44.8,58.6,28.3,44.8x58.6x28.3 cm,LOW_CONFIDENCE,1,22.1,1,trailing characters 'LETOI' dropped from AWB (OCR noise); OCR confidence 37% is low
+weight_image_31049518964465_1752912700157_jpg.rf.iG4vP0xAyOi73fTkCmgo.jpg,,3.0,,,,,PARTIAL_PARCEL,1,32.2,1,weight unit missing; read as kg; parcel touches the frame edge (partly visible)
+weight_image_31049519162716_1753021400611_jpg.rf.Oci3pj0uxdVN2jSvEG6U.jpg,31049519162716,3.44,44.8,25.3,24.8,44.8x25.3x24.8 cm,SUCCESS,0,88.9,1,
+weight_image_31049519183521_1753021400756_jpg.rf.g1YkiDOajePHlpKyRUhM.jpg,31049519183521,3.74,44.9,28.8,23.7,44.9x28.8x23.7 cm,NO_PARCEL,1,74.4,0,no parcel-like object found in frame
