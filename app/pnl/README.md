@@ -56,7 +56,7 @@ Empty file, corrupt Excel, no header, missing required column (named in the mess
 
 ## Known limitations
 * Digests are generated for the **latest day** of each FC automatically; other days can be previewed/sent on demand from the Digests tab. There is no scheduler/cron: "daily" means "run when the day's file arrives" (a cron/`curl` or n8n call to `/pnl/upload` is the intended trigger).
-* Email/Slack delivery code is written against SMTP/webhook standards but could only be exercised in dry-run mode in my sandbox (no outbound network): **verify once with your own credentials** (the Send button shows the real error if it fails).
+* Slack/Email feature: Have to verify once with your credentials  (the Send button shows the real error if it fails).
 * "Memory" is limited to the data in the current upload plus overrides; no cross-run baselines yet.
 * Target ranges are per line item for all FCs; per-FC ranges are not yet supported.
 * Insight wording is template-based - correct and consistent, but less fluent than an LLM; recommended actions are generic per line item.
