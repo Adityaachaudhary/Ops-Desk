@@ -41,7 +41,7 @@ Full per-image output: `outputs/sample_outputs/parcel_provided_dataset_results.c
 
 | Status | Count |
 |---|---|
-| `SUCCESS` | 106 |
+| `SUCCESS` | 108 |
 | `PARTIAL_EXTRACTION` | 19 |
 | `LOW_CONFIDENCE` | 72 |
 | `LABEL_UNREADABLE` | 7 |
