@@ -12,5 +12,5 @@
   <dl class="kv">{% for s,t in [('SUCCESS','AWB, weight and dimensions read cleanly'),('PARTIAL_EXTRACTION','Some fields read, others missing (kept)'),('LOW_CONFIDENCE','Read, but verify - OCR doubt'),('LABEL_UNREADABLE','No AWB found'),('NO_PARCEL','Empty frame'),('MULTIPLE_PARCELS','More than one parcel'),('PARTIAL_PARCEL','Parcel cut off'),('INVALID_IMAGE','Corrupt / unreadable file')] %}
    <dt>{{ m.pill(s) }}</dt><dd class="small">{{ t }}</dd>{% endfor %}</dl></section>
 </div>
-<div class="card"><div class="card-h"><h2>Recent batches</h2></div>{{ m.jobs_table(history) }}</div>
+<div class="card"><div class="card-h"><h2>Recent batches</h2></div>{{ m.jobs_table(history, true) }}</div>
 {% endblock %}

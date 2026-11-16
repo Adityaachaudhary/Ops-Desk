@@ -1,4 +1,11 @@
 (function(){
+  document.querySelectorAll('time[data-local-time]').forEach(function(el){
+    var date=new Date(el.getAttribute('datetime'));
+    if(isNaN(date.getTime())) return;
+    el.textContent=date.toLocaleString();
+    var zone=Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if(zone) el.title='Local time ('+zone+')';
+  });
   // drag & drop upload areas (the <label> opens the file dialog natively; this adds drag/drop + a file summary)
   document.querySelectorAll('.drop').forEach(function(z){
     var inp=z.querySelector('input[type=file]'), pick=z.querySelector('.picked');
@@ -36,6 +43,31 @@
     f.addEventListener('submit',function(){
       var b=f.querySelector('button[type=submit]'); if(b){b.disabled=true;b.dataset.t=b.textContent;b.textContent=f.dataset.busy;}
     });
+  });
+  document.addEventListener('submit',function(e){
+    var f=e.target.closest('form.job-delete-form');
+    if(!f) return;
+    e.preventDefault();
+    if(!window.confirm(f.dataset.confirm)) return;
+    var b=f.querySelector('button[type=submit]');
+    if(b) b.disabled=true;
+    fetch(f.action,{method:'POST',headers:{'X-Requested-With':'XMLHttpRequest'}})
+      .then(function(r){return r.text().then(function(text){
+        var data; try{data=JSON.parse(text);}catch(_){throw new Error('The server returned an unexpected response while deleting the job.');}
+        if(!r.ok) throw new Error(data.error||'Delete failed.');
+        return data;
+      });})
+      .then(function(){
+        var row=f.closest('tr'), wrap=row.closest('.tw'), body=row.parentElement;
+        row.remove();
+        if(!body.querySelector('tr')){
+          var empty=document.createElement('p');
+          empty.className='muted';
+          empty.textContent='No jobs yet. Upload files or run the sample to see results here.';
+          wrap.replaceWith(empty);
+        }
+      })
+      .catch(function(err){if(b) b.disabled=false;window.alert(err.message||'Delete failed.');});
   });
   // job progress polling: page stays usable, you can leave and come back
   var box=document.querySelector('[data-job]');

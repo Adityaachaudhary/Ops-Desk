@@ -9,16 +9,29 @@
 {% set okp = 0 if j.status == 'failed' else ([j.progress - fp, 0]|max) %}
 <div class="bar {{ 'run' if j.status in ('queued','processing') }}"><i style="width:{{ okp }}%"></i><i class="bad" style="width:{{ fp }}%"></i></div>
 {%- endmacro %}
-{% macro jobs_table(rows) -%}
+{% macro jobs_table(rows, deletable=false) -%}
 {% if rows %}
 <div class="tw"><table>
-<thead><tr><th>Job</th><th>Module</th><th>Status</th><th>Progress</th><th>Result</th><th>Created (UTC)</th></tr></thead><tbody>
+<thead><tr><th>Job</th><th>Module</th><th>Status</th><th>Progress</th><th>Result</th><th>Created (local)</th>{% if deletable %}<th class="job-actions" aria-label="Actions"></th>{% endif %}</tr></thead><tbody>
 {% for j in rows %}
 <tr><td><a href="/{{ j.case_type }}/jobs/{{ j.id }}">{{ j.title or j.id }}</a><div class="muted small mono">{{ j.id }}</div></td>
 <td>{{ modules[j.case_type].short if j.case_type in modules else j.case_type }}</td>
 <td>{{ pill(j.status) }}</td>
 <td style="min-width:120px">{{ progress(j) }}<div class="small muted">{{ j.processed_items }} / {{ j.total_items }}{% if j.failed_items %} · <span class="failtxt">{{ j.failed_items }} failed</span>{% endif %}</div></td>
-<td class="reason">{{ j.message }}</td><td class="small nowrap muted">{{ j.created_at }}</td></tr>
+<td class="reason">{{ j.message }}</td><td class="small nowrap muted"><time datetime="{{ j.created_at|replace(' ', 'T') }}Z" data-local-time>{{ j.created_at }}</time></td>
+{% if deletable %}<td class="job-actions">
+{% if j.status in ('queued','processing') %}
+<button class="btn sm danger icon-btn" type="button" disabled title="Wait for this job to finish before deleting it" aria-label="Delete {{ j.title or j.id }}">
+<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 4h10M6 4V2.5h4V4m2-0-.6 9H4.6L4 4m2.5 2v5m3-5v5"/></svg>
+</button>
+{% else %}
+<form class="job-delete-form" method="post" action="/jobs/{{ j.id }}/delete" data-confirm="Delete this job and all of its files and results?">
+<button class="btn sm danger icon-btn" type="submit" title="Delete job and all associated data" aria-label="Delete {{ j.title or j.id }}">
+<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 4h10M6 4V2.5h4V4m2-0-.6 9H4.6L4 4m2.5 2v5m3-5v5"/></svg>
+</button>
+</form>
+{% endif %}
+</td>{% endif %}</tr>
 {% endfor %}</tbody></table></div>
 {% else %}<p class="muted">No jobs yet. Upload files or run the sample to see results here.</p>{% endif %}
 {%- endmacro %}

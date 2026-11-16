@@ -79,9 +79,17 @@ def retry(jid: str):
 
 
 @app.post("/jobs/{jid}/delete")
-def delete(jid: str):
+def delete(jid: str, request: Request):
     j = jobs.get_job(jid)
-    jobs.delete_job(jid)
+    deleted = jobs.delete_job(jid)
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        if not j:
+            return JSONResponse({"error": "Job not found"}, status_code=404)
+        if not deleted:
+            return JSONResponse({"error": "This job is still running and cannot be deleted yet."}, status_code=409)
+        return {"deleted": True}
+    if j and not deleted:
+        return RedirectResponse(f"/{j['case_type']}/jobs/{jid}", status_code=303)
     return RedirectResponse(f"/{j['case_type']}" if j else "/jobs", status_code=303)
 
 
@@ -100,7 +108,7 @@ async def not_found(request: Request, exc):
 @app.exception_handler(Exception)
 async def server_error(request: Request, exc: Exception):
     log.exception("unhandled error")
-    if request.url.path.startswith("/api/"):
+    if request.url.path.startswith("/api/") or request.headers.get("x-requested-with") == "XMLHttpRequest":
         return JSONResponse({"error": "Unexpected server error"}, status_code=500)
         return render(request, "error.html", status_code=500, title="Something went wrong",
                   message="The request could not be completed. Nothing was lost - please try again or contact the maintainer.",

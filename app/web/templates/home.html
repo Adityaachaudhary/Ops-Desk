@@ -18,5 +18,5 @@
 <div class="card"><div class="card-h"><h2>Latest status by FC</h2><a class="small" href="/pnl/jobs/{{ last_pnl.id }}">Open dashboard</a></div>
  <div class="strip">{% for s in strip %}<div class="fcc {{ s.colour }}"><b>{{ s.fc }}</b><div class="v">{{ ('%.1f%%' % s.cm2_pct) if s.cm2_pct is not none else 'n/a' }}</div><small>CM2 · {{ s.day }}</small></div>{% endfor %}</div></div>
 {% endif %}
-<div class="card"><div class="card-h"><h2>Recent jobs</h2><a class="small" href="/jobs">View all</a></div>{{ m.jobs_table(recent) }}</div>
+<div class="card"><div class="card-h"><h2>Recent jobs</h2><a class="small" href="/jobs">View all</a></div>{{ m.jobs_table(recent, true) }}</div>
 {% endblock %}

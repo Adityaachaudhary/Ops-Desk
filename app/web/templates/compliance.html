@@ -20,5 +20,5 @@
    <dt>{{ m.pill('Not applicable') }}</dt><dd class="small">No ID and nothing deducted</dd></dl>
   <p class="small muted">Names tolerate word order, spacing, initials and spelling variants; different first names do not pass.</p></section>
 </div>
-<div class="card"><div class="card-h"><h2>Recent verifications</h2></div>{{ m.jobs_table(history) }}</div>
+<div class="card"><div class="card-h"><h2>Recent verifications</h2></div>{{ m.jobs_table(history, true) }}</div>
 {% endblock %}

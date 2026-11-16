@@ -7,7 +7,9 @@ Lifecycle: queued -> processing -> completed | completed_with_errors | failed
 * Handlers are plain functions registered per case type; a crash in one handler only fails that job.
 """
 import json
+import os
 import shutil
+import stat
 import threading
 import time
 import traceback
@@ -16,7 +18,7 @@ from pathlib import Path
 from typing import Callable
 
 from . import db
-from .config import UPLOAD_DIR, WORKER_THREADS, MAX_UPLOAD_MB, MAX_FILES_PER_UPLOAD
+from .config import OUTPUT_DIR, UPLOAD_DIR, WORKER_THREADS, MAX_UPLOAD_MB, MAX_FILES_PER_UPLOAD
 
 HANDLERS: dict[str, Callable] = {}
 _started = False
@@ -88,15 +90,45 @@ def retry(jid: str) -> bool:
 
 
 def delete_job(jid: str):
-    j = get_job(jid)
-    if not j:
-        return
-    for t in ("parcel_results", "compliance_results", "fc_daily_records", "fc_anomalies", "fc_alerts", "job_events"):
-        db.execute(f"DELETE FROM {t} WHERE job_id=?", (jid,))
-    db.execute("DELETE FROM jobs WHERE id=?", (jid,))
-    if j.get("input_dir"):
-        shutil.rmtree(j["input_dir"], ignore_errors=True)
+    with db.conn() as c:
+        c.execute("BEGIN IMMEDIATE")
+        row = c.execute("SELECT * FROM jobs WHERE id=?", (jid,)).fetchone()
+        if not row or row["status"] in ("queued", "processing"):
+            return False
+        j = dict(row)
+
+        output_files = [
+            OUTPUT_DIR / f"parcel_{jid}.csv",
+            OUTPUT_DIR / f"compliance_{jid}.xlsx",
+            OUTPUT_DIR / f"compliance_{jid}.csv",
+            OUTPUT_DIR / f"pnl_{jid}.xlsx",
+            OUTPUT_DIR / f"pnl_anomalies_{jid}.csv",
+        ]
+        for path in output_files:
+            if path.is_file():
+                try:
+                    path.unlink()
+                except PermissionError:
+                    path.chmod(path.stat().st_mode | stat.S_IWRITE)
+                    path.unlink()
+        digest_dir = OUTPUT_DIR / "digests" / jid
+        if digest_dir.is_dir():
+            shutil.rmtree(digest_dir, onerror=_remove_readonly)
+        if j.get("input_dir") and Path(j["input_dir"]).is_dir():
+            shutil.rmtree(j["input_dir"], onerror=_remove_readonly)
+
+        for t in ("parcel_results", "compliance_results", "fc_daily_records", "fc_anomalies", "fc_alerts", "job_events"):
+            c.execute(f"DELETE FROM {t} WHERE job_id=?", (jid,))
+        c.execute("DELETE FROM jobs WHERE id=?", (jid,))
     db.audit("delete_job", jid)
+    return True
+
+
+def _remove_readonly(func, path, exc_info):
+    for target in (Path(path), Path(path).parent):
+        if target.exists():
+            target.chmod(target.stat().st_mode | stat.S_IWRITE)
+    func(path)
 
 
 # ---------------------------------------------------------------- handler context

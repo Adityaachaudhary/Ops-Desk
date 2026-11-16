@@ -92,6 +92,10 @@ tr:last-child td{border-bottom:0}
 tbody tr:hover{background:#f8fbfa}
 td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .thumb{width:84px;height:54px;object-fit:cover;border-radius:5px;background:#16262a;cursor:zoom-in;display:block;border:1px solid var(--line)}
+.job-actions{width:1%;white-space:nowrap;text-align:right}
+.job-actions form{margin:0}
+.icon-btn{padding:5px 7px;color:var(--bad)}
+.icon-btn svg{display:block;width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 .reason{min-width:250px;max-width:60ch;color:#33484e;font-size:.84rem}
 .tag-row{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
 .chip{border:1px solid var(--line);background:#fff;border-radius:99px;padding:4px 11px;font-size:.82rem;cursor:pointer;color:var(--text);font:inherit;font-size:.82rem}
