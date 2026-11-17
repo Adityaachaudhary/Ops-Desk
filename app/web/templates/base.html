@@ -3,7 +3,7 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{% block title %}Operations Intelligence{% endblock %} · Prozo</title>
 <link rel="stylesheet" href="/static/style.css"></head>
-<body><div class="shell">
+<body data-resume-case="{{ active if active in ('parcel', 'compliance', 'pnl') else '' }}"><div class="shell">
 <aside class="side">
  <div class="brand"><div class="brand-mark">P</div><div><b>prozo</b><span>Operations Intelligence</span></div></div>
  <nav class="nav">

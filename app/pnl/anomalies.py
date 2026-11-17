@@ -31,7 +31,7 @@ def detect(days: list[dict], r: Rules) -> list[dict]:
                 status = "ABOVE MAX" if pct > hi else "BELOW MIN"
                 trend = trailing(days, i, f"{k}_pct", r.trend_days)
                 out.append(_row(d, lab, pct, rng_text(lo, hi), status, WARN, abs(excess) / 100 * rev,
-                                f"{lab} = {pct:.1f}% ({abs(excess):.1f}pp {'above' if excess > 0 else 'below'} the {rng_text(lo, hi)} range)"
+                                f"{lab} = {pct:g}% ({abs(excess):g}pp {'above' if excess > 0 else 'below'} the {rng_text(lo, hi)} range)"
                                 + (f"; its trailing {r.trend_days}-day average is {trend:.1f}%" if trend is not None else "")
                                 + ("; unusually low cost - check for missing postings" if excess < 0 else ""), excess_pp=excess))
         for which, label in (("cm1", "CM1"), ("cm2", "CM2")):
@@ -41,11 +41,11 @@ def detect(days: list[dict], r: Rules) -> list[dict]:
             if pct < lo_lim:
                 st = "CM2 BELOW THRESHOLD (RED)" if which == "cm2" else "CM1 DEVIATION > 3pp BELOW"
                 out.append(_row(d, label, pct, rng_text(tlo, thi), st, CRIT, (tlo - pct) / 100 * rev,
-                                f"{label} = {pct:.1f}% is {tlo - pct:.1f}pp below the target floor of {tlo:g}% (limit {lo_lim:g}%)", excess_pp=pct - tlo))
+                                f"{label} = {pct:g}% is {tlo - pct:g}pp below the target floor of {tlo:g}% (limit {lo_lim:g}%)", excess_pp=pct - tlo))
             elif pct > hi_lim:
                 st = "CM2 SUSPICIOUSLY HIGH (BLUE)" if which == "cm2" else "CM1 DEVIATION > 3pp ABOVE"
                 out.append(_row(d, label, pct, rng_text(tlo, thi), st, CRIT, (pct - thi) / 100 * rev,
-                                f"{label} = {pct:.1f}% is {pct - thi:.1f}pp above the target ceiling of {thi:g}% (limit {hi_lim:g}%)"
+                                f"{label} = {pct:g}% is {pct - thi:g}pp above the target ceiling of {thi:g}% (limit {hi_lim:g}%)"
                                 " - verify nothing is under-reported", excess_pp=pct - thi))
             elif which == "cm2" and d["colour"] == "Yellow":
                 side = "below" if pct < tlo else "above"

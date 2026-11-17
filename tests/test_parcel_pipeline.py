@@ -1,3 +1,6 @@
+from pathlib import Path
+
+import pytest
 from PIL import Image
 
 from app.parcel import ocr, pipeline, scene
@@ -37,3 +40,15 @@ def test_decoded_label_barcode_is_used_when_overlay_is_missing(tmp_path, monkeyp
     assert result["awb"] == "123456789012"
     assert result["status"] == "PARTIAL_EXTRACTION"
     assert "decoded from the physical shipping-label barcode" in result["notes"]
+
+
+def test_wider_overlay_crop_recovers_visible_weight():
+    pytest.importorskip("pytesseract")
+    if ocr.find_tesseract() is None:
+        pytest.skip("Tesseract is not installed")
+    image_path = (Path(__file__).resolve().parents[1] / "data" / "sample" / "case1" /
+                  "No Shipment packet captured_png.rf.1VvRtdnwIQAHs1Q83pHV.png")
+
+    result = pipeline.process_image(image_path)
+
+    assert result["weight_kg"] == 1.21

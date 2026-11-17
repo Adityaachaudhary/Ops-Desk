@@ -1,5 +1,5 @@
 {% extends "base.html" %}{% block title %}FC P&L run{% endblock %}{% block content %}
-{{ m.job_head(job, '/pnl', 'FC P&L Monitor') }}
+{{ m.job_head(job, '/pnl?new=1', 'New P&L upload') }}
 {% if job.status in ('completed','completed_with_errors') %}
 {% for w in kpi.warnings %}<div class="banner warn">{{ w }}</div>{% endfor %}
 <div class="row" style="margin:14px 0"><a class="btn primary" href="/pnl/jobs/{{ job.id }}/download">Download Excel workbook</a><a class="btn" href="/pnl/jobs/{{ job.id }}/anomalies.csv">Anomalies CSV</a>

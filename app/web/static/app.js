@@ -74,18 +74,51 @@
   if(box){
     var id=box.dataset.job, st=box.dataset.status, rowsUrl=box.dataset.rows;
     if(st==='queued'||st==='processing'){
+      var timer=null, inFlight=false;
+      function schedule(ms){ clearTimeout(timer); timer=setTimeout(tick,ms); }
       var tick=function(){
+        if(inFlight) return;
+        inFlight=true;
         fetch('/api/jobs/'+id).then(function(r){return r.json()}).then(function(j){
           var bar=box.querySelector('.bar>i'); if(bar) bar.style.width=(j.progress||0)+'%';
           var m=box.querySelector('[data-msg]'); if(m) m.textContent=j.message||'';
           var p=box.querySelector('[data-pct]'); if(p) p.textContent=(j.processed_items||0)+' / '+(j.total_items||0);
-          var s=box.querySelector('[data-state]'); if(s) s.textContent=j.status.replace(/_/g,' ');
+          var state=box.querySelector('[data-job-status] .pill');
+          if(state){
+            var statusClass={queued:'mute',processing:'info',completed:'ok',completed_with_errors:'warn',failed:'bad'};
+            state.className='pill '+(statusClass[j.status]||'mute');
+            state.textContent=j.status.replace(/_/g,' ');
+          }
           if(rowsUrl){ fetch(rowsUrl).then(function(r){return r.text()}).then(function(h){var t=document.getElementById('live-rows'); if(t){t.innerHTML=h; applyFilter();}}); }
-          if(j.status==='queued'||j.status==='processing'){ setTimeout(tick,1500); } else { location.reload(); }
-        }).catch(function(){ setTimeout(tick,3000); });
+          inFlight=false;
+          if(j.status==='queued'||j.status==='processing'){ schedule(1500); } else { location.reload(); }
+        }).catch(function(){ inFlight=false; schedule(3000); });
       };
-      setTimeout(tick,900);
+      function pollWhenVisible(){
+        if(document.hidden) return;
+        clearTimeout(timer);
+        tick();
+      }
+      document.addEventListener('visibilitychange',pollWhenVisible);
+      window.addEventListener('pageshow',pollWhenVisible);
+      schedule(900);
     }
+  }
+  var resumeCase=document.body.dataset.resumeCase;
+  if(resumeCase && !box && new URLSearchParams(location.search).get('new')!=='1'){
+    var checkingLatest=false;
+    function resumeLatest(){
+      if(document.hidden||checkingLatest) return;
+      checkingLatest=true;
+      fetch('/api/jobs/latest/'+encodeURIComponent(resumeCase),{cache:'no-store'})
+        .then(function(r){if(r.status===404) return null;if(!r.ok) throw new Error('Could not check the latest job.');return r.json();})
+        .then(function(j){if(j&&j.id) location.replace('/'+resumeCase+'/jobs/'+encodeURIComponent(j.id));})
+        .catch(function(){})
+        .then(function(){checkingLatest=false;});
+    }
+    window.addEventListener('pageshow',resumeLatest);
+    document.addEventListener('visibilitychange',function(){if(!document.hidden) resumeLatest();});
+    resumeLatest();
   }
   // client-side status filter + search for result tables
   var active='';

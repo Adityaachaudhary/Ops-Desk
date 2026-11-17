@@ -1,6 +1,7 @@
 from app.pnl.anomalies import detect
 from app.pnl.calculator import colour_for, compute_day
 from app.pnl.config import Rules
+from app.pnl.insights import day_insight
 
 R = Rules()
 
@@ -29,6 +30,16 @@ def test_line_item_only_breach():
     d = compute_day(rec(pack=9500), R)  # packaging 9.5% > 7%; CM2 still green
     a = detect([d], R)
     assert d["colour"] == "Green" and [(x["line_item"], x["status"]) for x in a] == [("Packaging", "ABOVE MAX")]
+
+
+def test_small_line_item_deviation_is_not_rounded_to_zero():
+    d = compute_day(rec(rent=14980), R)
+    anomalies = detect([d], R)
+    rent = next(a for a in anomalies if a["line_item"] == "FC Rent")
+    insight = day_insight(d, anomalies, [], R)
+
+    assert "14.98%" in rent["detail"] and "0.02pp below" in rent["detail"]
+    assert "14.98%" in insight and "0.02pp" in insight
 
 
 def test_red_and_blue_and_data_issue():

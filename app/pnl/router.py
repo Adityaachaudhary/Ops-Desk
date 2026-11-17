@@ -30,8 +30,15 @@ def _page(request, error=None):
 
 
 @router.get("")
-def index(request: Request):
-    return _page(request)
+def index(request: Request, new: bool = False):
+    cookie = jobs.resume_cookie_name(CASE_TYPE)
+    url = jobs.resume_url(request.cookies, CASE_TYPE)
+    if not new and url:
+        return RedirectResponse(url, status_code=303)
+    response = _page(request)
+    if request.cookies.get(cookie) and not url:
+        response.delete_cookie(cookie)
+    return response
 
 
 def _queue(file: Path, folder: Path, default_fc: str, send: bool, title: str):
@@ -102,7 +109,9 @@ def job_page(request: Request, jid: str, tab: str = "dashboard", fc: str = "", s
                    charts={f: cm2_chart(v) for f, v in by_fc.items()}, all_alerts=db.query("SELECT * FROM fc_alerts WHERE job_id=? ORDER BY id", (jid,)),
                    managers=load_managers(), rules=j["meta"].get("rules", []),
                    ranges={k: (lo, hi) for k, _, lo, hi in LINE_ITEMS}, day_options=[d for _, d in days])
-    return render(request, "pnl_job.html", active="pnl", **ctx)
+    response = render(request, "pnl_job.html", active="pnl", **ctx)
+    jobs.remember_job(response, jid, CASE_TYPE)
+    return response
 
 
 def _digest_for(jid, fc, day):

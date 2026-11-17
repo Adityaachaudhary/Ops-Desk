@@ -15,9 +15,9 @@ CSV_COLS = ["idx", "employee", "uan", "ip_number", "agency", "state", "pf_status
 def handle(job, ctx):
     files, jid = job["meta"]["files"], job["id"]
     try:
-        tol = Decimal(str(job["meta"].get("tolerance", "1")))
+        tol = Decimal(str(job["meta"].get("tolerance", "0")))
     except InvalidOperation:
-        tol = Decimal("1")
+        tol = Decimal("0")
     db.execute("DELETE FROM compliance_results WHERE job_id=?", (jid,))
     n_pf, n_es = count_pages(files["pf"]), count_pages(files["esic"])
     ctx.set_total(n_pf + n_es + 3)

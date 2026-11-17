@@ -5,6 +5,7 @@ import stat
 import tempfile
 import time
 import asyncio
+from pathlib import Path
 
 import pytest
 
@@ -43,6 +44,41 @@ def test_pages_load(client):
     assert client.get("/nope").status_code == 404
 
 
+def test_case_tabs_resume_last_job_and_keep_new_upload_available(client):
+    cases = ("parcel", "compliance", "pnl")
+    job_ids = {case: f"job_resume_{case}" for case in cases}
+    try:
+        for case, jid in job_ids.items():
+            db.execute(
+                "INSERT INTO jobs(id,case_type,title,status,meta,created_at,updated_at) VALUES(?,?,?,?,?,?,?)",
+                (jid, case, "Resume test", "processing", "{}", "now", "now"),
+            )
+            client.cookies.delete(f"prozo_last_job_{case}")
+            latest = client.get(f"/api/jobs/latest/{case}")
+            assert latest.status_code == 200 and latest.json()["id"] == jid
+            resumed_without_cookie = client.get(f"/{case}", follow_redirects=False)
+            assert resumed_without_cookie.status_code == 303
+            assert resumed_without_cookie.headers["location"] == f"/{case}/jobs/{jid}"
+
+            detail = client.get(f"/{case}/jobs/{jid}", follow_redirects=False)
+            assert detail.status_code == 200
+            assert detail.cookies[f"prozo_last_job_{case}"] == jid
+            assert f'href="/{case}?new=1"' in detail.text
+            assert f'href="/{case}" class="on' in detail.text
+
+            resumed = client.get(f"/{case}", follow_redirects=False)
+            assert resumed.status_code == 303
+            assert resumed.headers["location"] == f"/{case}/jobs/{jid}"
+
+            upload_page = client.get(f"/{case}?new=1", follow_redirects=False)
+            assert upload_page.status_code == 200
+            assert f'action="/{case}/upload"' in upload_page.text
+    finally:
+        for case, jid in job_ids.items():
+            client.cookies.delete(f"prozo_last_job_{case}")
+            db.execute("DELETE FROM jobs WHERE id=?", (jid,))
+
+
 def test_unhandled_html_error_returns_error_page():
     scope = {
         "type": "http", "asgi": {"version": "3.0"}, "http_version": "1.1",
@@ -78,6 +114,26 @@ def test_compliance_sample_and_bad_input(client):
     assert "required" in err(client.post("/compliance/upload", data={"tolerance": "1"}))
     r = client.post("/compliance/upload", files={"wagesheet": ("a.xlsx", b"junk"), "pf": ("p.pdf", b"%PDF junk"), "esic": ("e.pdf", b"%PDF junk")})
     assert "could not be opened" in err(r)
+
+
+def test_swapped_ecr_pdfs_are_rejected_before_creating_a_job(client):
+    sample_dir = Path(__file__).resolve().parents[1] / "data" / "sample" / "case2"
+    wagesheet = sample_dir / "Sample_Wagesheet_Aug25.xlsx"
+    pf = sample_dir / "PF ECR AUG-25 SAMPLE.pdf"
+    esic = sample_dir / "ESIC ECR AUG-25 SAMPLE.pdf"
+    before = db.one("SELECT COUNT(*) AS n FROM jobs WHERE case_type='compliance'")["n"]
+
+    response = client.post(
+        "/compliance/upload",
+        files={
+            "wagesheet": (wagesheet.name, wagesheet.read_bytes()),
+            "pf": (esic.name, esic.read_bytes(), "application/pdf"),
+            "esic": (pf.name, pf.read_bytes(), "application/pdf"),
+        },
+    )
+
+    assert "appears to be an ESIC ECR" in err(response)
+    assert db.one("SELECT COUNT(*) AS n FROM jobs WHERE case_type='compliance'")["n"] == before
 
 
 def test_pnl_sample_and_bad_input(client):
@@ -126,7 +182,7 @@ def test_recent_case_jobs_can_be_deleted_with_all_outputs(client):
         for table in ("parcel_results", "compliance_results", "fc_daily_records", "fc_anomalies", "fc_alerts", "job_events"):
             db.execute(f"INSERT INTO {table}(job_id) VALUES(?)", (jid,))
 
-        for page_path in ("/", "/jobs", f"/{case_type}"):
+        for page_path in ("/", "/jobs", f"/{case_type}?new=1"):
             page = client.get(page_path)
             assert f'class="job-delete-form" method="post" action="/jobs/{jid}/delete"' in page.text
 
@@ -148,7 +204,7 @@ def test_recent_case_jobs_can_be_deleted_with_all_outputs(client):
         "INSERT INTO jobs(id,case_type,title,status,meta,created_at,updated_at) VALUES(?,?,?,?,?,?,?)",
         (active_jid, "parcel", "Active job", "processing", "{}", "now", "now"),
     )
-    page = client.get("/parcel")
+    page = client.get("/parcel?new=1")
     assert f'aria-label="Delete Active job"' in page.text
     assert f'action="/jobs/{active_jid}/delete"' not in page.text
     ajax_response = client.post(f"/jobs/{active_jid}/delete", headers={"X-Requested-With": "XMLHttpRequest"})

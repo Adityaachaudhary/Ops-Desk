@@ -1,5 +1,5 @@
 {% extends "base.html" %}{% block title %}Parcel batch{% endblock %}{% block content %}
-{% call m.job_head(job, '/parcel', 'Parcel Intelligence') %}data-rows="/parcel/jobs/{{ job.id }}/rows"{% endcall %}
+{% call m.job_head(job, '/parcel?new=1', 'New parcel batch') %}data-rows="/parcel/jobs/{{ job.id }}/rows"{% endcall %}
 {% if job.status in ('completed','completed_with_errors') %}
 <div class="row" style="margin:14px 0"><a class="btn primary" href="/parcel/jobs/{{ job.id }}/download">Download CSV</a>
  <form method="post" action="/jobs/{{ job.id }}/delete" onsubmit="return confirm('Delete this batch and its images?')"><button class="btn danger">Delete batch</button></form></div>

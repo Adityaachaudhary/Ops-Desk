@@ -77,9 +77,7 @@ def read_overlay(img: Image.Image, score_fn):
     W, H = img.size
     regions = [(0, 0, int(W * 0.62), int(H * 0.34))]
     best = ("", 0.0, None, -1)
-    for ri, box_ in enumerate(regions + [(0, 0, W, int(H * 0.55))]):
-        if ri == 1 and best[3] > 0:
-            break
+    for box_ in regions + [(0, 0, W, int(H * 0.55))]:
         crop = img.crop(box_)
         for mode, target_w in ATTEMPTS:
             arr = _prep(crop, target_w, mode)

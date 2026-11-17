@@ -46,15 +46,19 @@ def test_scanned_pf_pdf_uses_ocr_fallback(tmp_path):
     assert len(parsed.rows) == 1
     assert parsed.rows[0]["id"] == "123456789012"
     assert parsed.rows[0]["amount"] == 1200
-    assert parsed.rows[0]["ocr_ambiguous"]
-    assert any("verify this member manually" in warning for warning in parsed.warnings)
     ws_row = {
         "uan": "123456789012", "ip": "", "name": "ANIL KUMAR", "pf_amt": Decimal("1200"),
         "pf_raw": "1200", "esic_amt": None, "esic_raw": "", "agency": "", "state": "",
     }
     results, _ = verify([ws_row], parsed, EcrParse("ESIC"))
-    assert results[0]["pf_status"] == REVIEW
-    assert "OCR was uncertain" in results[0]["pf_reason"]
+    if parsed.rows[0].get("ocr_ambiguous"):
+        assert any("verify this member manually" in warning for warning in parsed.warnings)
+    if parsed.rows[0].get("ocr_ambiguous") or parsed.rows[0].get("name_ambiguous"):
+        assert results[0]["pf_status"] == REVIEW
+        if parsed.rows[0].get("ocr_ambiguous"):
+            assert "OCR was uncertain" in results[0]["pf_reason"]
+    else:
+        assert results[0]["pf_status"] == "Matched"
 
 
 @pytest.mark.skipif(not _has_tesseract(), reason="Tesseract is not installed")

@@ -9,7 +9,7 @@ from ..core import db, jobs
 from ..core.config import BASE_DIR, UPLOAD_DIR
 from ..core.jobs import UserInputError
 from ..core.web import render
-from .parser import count_pages, parse_wagesheet
+from .parser import count_pages, parse_wagesheet, validate_ecr_pdf_kind
 from .service import handle  # noqa: F401
 from .verifier import STATUSES
 
@@ -24,8 +24,15 @@ def _page(request, error=None):
 
 
 @router.get("")
-def index(request: Request):
-    return _page(request)
+def index(request: Request, new: bool = False):
+    cookie = jobs.resume_cookie_name(CASE_TYPE)
+    url = jobs.resume_url(request.cookies, CASE_TYPE)
+    if not new and url:
+        return RedirectResponse(url, status_code=303)
+    response = _page(request)
+    if request.cookies.get(cookie) and not url:
+        response.delete_cookie(cookie)
+    return response
 
 
 def _validate_and_queue(folder: Path, ws: Path, pf: Path, es: Path, tol: str, title: str):
@@ -35,10 +42,12 @@ def _validate_and_queue(folder: Path, ws: Path, pf: Path, es: Path, tol: str, ti
                 raise UserInputError(f"The file given as {label} is not a valid PDF (it may be corrupt or a renamed file).")
         if count_pages(p) == 0:
             raise UserInputError(f"The {label} PDF could not be opened (corrupt or password-protected).")
+    validate_ecr_pdf_kind(pf, "PF")
+    validate_ecr_pdf_kind(es, "ESIC")
     parse_wagesheet(ws)  # fail fast with a readable message on a bad wagesheet
     try:
         from decimal import Decimal
-        t = Decimal(tol or "1")
+        t = Decimal(tol or "0")
         if t < 0 or t > 100:
             raise ValueError
     except Exception:
@@ -50,7 +59,7 @@ def _validate_and_queue(folder: Path, ws: Path, pf: Path, es: Path, tol: str, ti
 
 @router.post("/upload")
 async def upload(request: Request, wagesheet: UploadFile = File(None), pf: UploadFile = File(None), esic: UploadFile = File(None),
-                 tolerance: str = Form("1")):
+                 tolerance: str = Form("0")):
     for f, label in ((wagesheet, "wagesheet (Excel)"), (pf, "PF ECR (PDF)"), (esic, "ESIC ECR (PDF)")):
         if f is None or not f.filename:
             return _page(request, error=f"Please choose the {label} file. All three files are required.")
@@ -77,7 +86,7 @@ def sample(request: Request):
         ws = next(folder.glob("*.xlsx"))
         pf = next(p for p in folder.glob("*.pdf") if "PF" in p.name.upper() and "ESIC" not in p.name.upper())
         es = next(p for p in folder.glob("*.pdf") if "ESIC" in p.name.upper())
-        jid = _validate_and_queue(folder, ws, pf, es, "1", "Sample: Aug-25 wagesheet vs ECRs")
+        jid = _validate_and_queue(folder, ws, pf, es, "0", "Sample: Aug-25 wagesheet vs ECRs")
     except (StopIteration, UserInputError) as e:
         return _page(request, error=str(e) if isinstance(e, UserInputError) else "Sample files are incomplete.")
     return RedirectResponse(f"/compliance/jobs/{jid}", status_code=303)
@@ -94,8 +103,10 @@ def job_page(request: Request, jid: str):
     if not j:
         return render(request, "error.html", status_code=404, title="Job not found", message="This compliance job does not exist.")
     rows = db.query("SELECT * FROM compliance_results WHERE job_id=? ORDER BY idx", (jid,))
-    return render(request, "compliance_job.html", active="compliance", job=j, rows=rows, summary=j["meta"].get("summary"),
-                  statuses=STATUSES, events=jobs.events(jid, 8))
+    response = render(request, "compliance_job.html", active="compliance", job=j, rows=rows, summary=j["meta"].get("summary"),
+                      statuses=STATUSES, events=jobs.events(jid, 8))
+    jobs.remember_job(response, jid, CASE_TYPE)
+    return response
 
 
 @router.get("/jobs/{jid}/download")

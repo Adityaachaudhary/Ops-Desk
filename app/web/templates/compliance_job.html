@@ -1,5 +1,5 @@
 {% extends "base.html" %}{% block title %}Compliance run{% endblock %}{% block content %}
-{{ m.job_head(job, '/compliance', 'Compliance Check') }}
+{{ m.job_head(job, '/compliance?new=1', 'New compliance check') }}
 {% if summary %}
 <div class="row" style="margin:14px 0"><a class="btn primary" href="/compliance/jobs/{{ job.id }}/download">Download Excel report</a><a class="btn" href="/compliance/jobs/{{ job.id }}/csv">CSV</a>
  <form method="post" action="/jobs/{{ job.id }}/delete" onsubmit="return confirm('Delete this run?')"><button class="btn danger">Delete</button></form></div>

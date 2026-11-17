@@ -14,8 +14,11 @@ import threading
 import time
 import traceback
 import uuid
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Callable
+
+from starlette.responses import Response
 
 from . import db
 from .config import OUTPUT_DIR, UPLOAD_DIR, WORKER_THREADS, MAX_UPLOAD_MB, MAX_FILES_PER_UPLOAD
@@ -50,6 +53,26 @@ def get_job(jid: str) -> dict | None:
         j["progress"] = int(100 * j["processed_items"] / j["total_items"]) if j["total_items"] else (
             100 if j["status"] in ("completed", "completed_with_errors") else 0)
     return j
+
+
+def resume_cookie_name(case_type: str) -> str:
+    return f"prozo_last_job_{case_type}"
+
+
+def resume_url(cookies: Mapping[str, str], case_type: str) -> str | None:
+    jid = cookies.get(resume_cookie_name(case_type))
+    job = get_job(jid) if jid else None
+    if job and job["case_type"] == case_type:
+        return f"/{case_type}/jobs/{jid}"
+    latest = list_jobs(case_type, 1)
+    return f"/{case_type}/jobs/{latest[0]['id']}" if latest else None
+
+
+def remember_job(response: Response, jid: str, case_type: str) -> None:
+    response.set_cookie(
+        resume_cookie_name(case_type), jid, max_age=30 * 24 * 60 * 60,
+        httponly=True, samesite="lax",
+    )
 
 
 def list_jobs(case_type: str | None = None, limit: int = 50) -> list[dict]:

@@ -38,7 +38,7 @@
 {% macro job_head(j, back_url, back_label) -%}
 <div class="crumb"><a href="{{ back_url }}">{{ back_label }}</a> / <span class="mono">{{ j.id }}</span></div>
 <div class="card" data-job="{{ j.id }}" data-status="{{ j.status }}" {{ caller() if caller else '' }}>
- <div class="card-h"><h2>{{ j.title }}</h2><span>{{ pill(j.status) }}</span></div>
+ <div class="card-h"><h2>{{ j.title }}</h2><span data-job-status>{{ pill(j.status) }}</span></div>
  {{ progress(j) }}
  <div class="row small muted" style="justify-content:space-between;margin-top:6px"><span data-msg>{{ j.message }}</span><span data-pct>{{ j.processed_items }} / {{ j.total_items }}{% if j.failed_items %} · <span class="failtxt">{{ j.failed_items }} failed</span>{% endif %}</span></div>
  {% if j.status == 'failed' %}
@@ -47,6 +47,6 @@
  {% elif j.status == 'completed_with_errors' %}
  <form method="post" action="/jobs/{{ j.id }}/retry" style="margin-top:10px"><button class="btn sm">Retry failed run</button></form>
  {% endif %}
- {% if j.status in ('queued','processing') %}<p class="small muted" style="margin:10px 0 0">Running in the background. You can close this page and come back later from the Jobs list - nothing is lost.</p>{% endif %}
+ {% if j.status in ('queued','processing') %}<p class="small muted" style="margin:10px 0 0">Running in the background. You can leave this page and return from the case tab or Jobs list - nothing is lost.</p>{% endif %}
 </div>
 {%- endmacro %}

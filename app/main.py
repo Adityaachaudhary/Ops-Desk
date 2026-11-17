@@ -71,6 +71,16 @@ def api_job(jid: str):
     return {k: j[k] for k in ("id", "case_type", "status", "total_items", "processed_items", "failed_items", "progress", "message")}
 
 
+@app.get("/api/jobs/latest/{case_type}")
+def api_latest_job(case_type: str):
+    if case_type not in MODULES or not MODULES[case_type]["enabled"]:
+        return JSONResponse({"error": "Module not found"}, status_code=404)
+    latest = jobs.list_jobs(case_type, 1)
+    if not latest:
+        return JSONResponse({"error": "No jobs found"}, status_code=404)
+    return {"id": latest[0]["id"]}
+
+
 @app.get("/api/jobs/{jid}/events")
 def api_events(jid: str):
     return jobs.events(jid)

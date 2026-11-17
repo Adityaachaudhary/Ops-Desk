@@ -19,13 +19,13 @@ pip install -r requirements.txt                             # everything incl. C
 uvicorn app.main:app --port 8000                            # or ./run.sh  /  run.bat
 ```
 Open **http://localhost:8000**. Every module has a **"Run sample"** button, so a reviewer sees results in one click, and each module accepts your own files.
-Tests: `pytest` (45 tests: field parsing, parcel/OCR fallbacks, compliance matching and scanned-PDF OCR, P&L rules and inbox watching, a 1,500-employee multi-page ECR scale test, and API end-to-end with bad inputs).
+Tests: `pytest` (56 tests: field parsing, parcel/OCR fallbacks, compliance layouts/matching/scanned-PDF OCR, P&L rules and inbox watching, a 1,500-employee multi-page ECR scale test, and API end-to-end with bad inputs).
 
 ## What the brief's "common requirements" map to
 | Requirement | Where / how |
 |---|---|
 | Web app a non-technical user can operate | HTML/CSS pages (Jinja2, no build step): drag-and-drop upload, progress, results tables with filters, download buttons. |
-| Large batch must not freeze the screen; leave and come back | Upload only saves files + creates a **job row** and returns at once. A SQLite-backed worker (`app/core/jobs.py`) processes it; the page polls progress. Jobs and results persist, are listed under *All jobs*, and **survive page reloads and server restarts** (interrupted jobs are re-queued on start). Failed jobs have a Retry button. |
+| Large batch must not freeze the screen; leave and come back | Upload only saves files + creates a **job row** and returns at once. A SQLite-backed worker (`app/core/jobs.py`) processes it; the page polls progress. Jobs and results persist; a case tab resumes its last opened job, while *All jobs* lists every run. They **survive page reloads and server restarts** (interrupted jobs are re-queued on start). Use the job page's new-upload link to start another batch. Failed jobs have a Retry button. |
 | Bad input -> clear message, no crash | Validation at upload (empty, wrong type, corrupt, wrong slot) and inside jobs (`UserInputError` -> readable text). Unhandled errors render an error page, are logged, and never kill the worker thread. Each module has a "Bad input" section in its README, and `tests/test_api.py` checks it. |
 | Separate or combined app | **Combined**, with hard module boundaries (below). |
 | No secrets in repo; free path | Only environment variables (`.env.example` lists them; all optional). No paid API is needed anywhere. |

@@ -123,6 +123,89 @@ class EcrParse:
 
 
 NUM_TOK = re.compile(r"^-?[\d,]+(\.\d+)?$")
+_ROW_CONTINUATION_STOP = re.compile(r"(?i)^(?:member details|sno\.?|sl\.\s*no\.?|page\b|total\b)")
+
+
+def _header_before_first_row(text: str, row_start: re.Pattern) -> str:
+    lines = []
+    for line in text.splitlines():
+        if row_start.match(line):
+            break
+        lines.append(line)
+    return " ".join(lines)
+
+
+def _require_ordered_header(header: str, expected: tuple[str, ...], kind: str) -> None:
+    """Fail closed when a recognizable table header changes the contribution column order."""
+    cursor = 0
+    for label in expected:
+        match = re.search(rf"\b{re.escape(label)}\b", header[cursor:], re.I)
+        if not match:
+            raise UserInputError(
+                f"The {kind} ECR column order is not supported. Expected columns in this order: "
+                f"{', '.join(expected)}. No verification report was generated."
+            )
+        cursor += match.end()
+
+
+def _logical_member_rows(text: str, row_start: re.Pattern, is_complete) -> list[str]:
+    """Join up to three continuation lines to a member row that wraps in extracted PDF text."""
+    lines = text.splitlines()
+    rows = []
+    for index, line in enumerate(lines):
+        if not row_start.match(line):
+            continue
+        candidate = line.strip()
+        if not is_complete(candidate):
+            for continuation in lines[index + 1:index + 4]:
+                addition = continuation.strip()
+                if not addition:
+                    continue
+                if row_start.match(continuation) or _ROW_CONTINUATION_STOP.match(addition):
+                    break
+                candidate = f"{candidate} {addition}"
+                if is_complete(candidate):
+                    break
+        rows.append(candidate)
+    return rows
+
+
+def _trailing_numeric_count(text: str) -> int:
+    count = 0
+    for token in reversed(text.split()):
+        if not NUM_TOK.match(token):
+            break
+        count += 1
+    return count
+
+
+def validate_ecr_pdf_kind(path, expected: str) -> None:
+    """Reject clearly swapped text-based ECRs during upload; scanned PDFs stay on the job path."""
+    import pdfplumber
+
+    try:
+        with pdfplumber.open(path) as pdf:
+            text = "\n".join((page.extract_text() or "") for page in pdf.pages[:3])
+    except Exception as e:
+        raise UserInputError(
+            f"The {expected} ECR PDF could not be inspected ({type(e).__name__})."
+        ) from e
+    if not text.strip():
+        return
+
+    upper = re.sub(r"\s+", " ", text).upper()
+    pf_markers = ("ELECTRONIC CHALLAN CUM RETURN", "TOTAL EPF CONTRIBUTION", "UAN", "MEMBER DETAILS")
+    esic_markers = ("CONTRIBUTION HISTORY", "TOTAL IP CONTRIBUTION", "IP NUMBER", "INSURED")
+    pf_score = sum(marker in upper for marker in pf_markers)
+    esic_score = sum(marker in upper for marker in esic_markers)
+    detected = "PF" if pf_score >= 2 and pf_score > esic_score else (
+        "ESIC" if esic_score >= 2 and esic_score > pf_score else None
+    )
+    if detected and detected != expected.upper():
+        raise UserInputError(
+            f"The PDF uploaded in the {expected} slot appears to be an {detected} ECR. "
+            f"Please upload the {expected} PDF in this slot."
+        )
 
 
 def split_pf_names(run: str) -> tuple[str, str, bool]:
@@ -215,7 +298,28 @@ def parse_pf_ecr(path, on_page=None) -> EcrParse:
             m = re.search(r"Total EPF Contribution\s+([\d,]+)", text)
             if m:
                 out.header_total = to_dec(m.group(1))
-        for line in text.splitlines():
+        header = _header_before_first_row(text, row_re)
+        if re.search(r"\bEE\b", header, re.I):
+            ee_header = re.search(r"\bEE\b", header, re.I)
+            tail_header = header[ee_header.start():].strip()
+            _require_ordered_header(tail_header, ("EE", "EPS", "ER", "Days"), "PF")
+            if not re.fullmatch(r"EE\s+EPS\s+ER\s+(?:NCP\s+)?Days", tail_header, re.I):
+                raise UserInputError(
+                    "The PF ECR contribution columns are not in the supported rightmost order "
+                    "(EE, EPS, ER, NCP Days). No verification report was generated."
+                )
+
+        def row_complete(candidate):
+            match = row_re.match(candidate)
+            if not match:
+                return False
+            tail = match.group(3).split()
+            if used_ocr and tail and tail[-1].upper() in ("O", "Q"):
+                return _trailing_numeric_count(" ".join(tail[:-1])) == 7
+            count = _trailing_numeric_count(match.group(3))
+            return count == 8 if used_ocr else count >= 5
+
+        for line in _logical_member_rows(text, row_re, row_complete):
             m = row_re.match(line)
             if not m:
                 continue
@@ -281,11 +385,34 @@ def parse_esic_ecr(path, on_page=None) -> EcrParse:
         any_text |= bool(text.strip())
         if on_page:
             on_page(pno)
+        header = _header_before_first_row(text, loose)
+        table_header = re.search(r"\bSNo\.?\b|\bSl\.\s*No\.?\b", header, re.I)
+        if table_header:
+            header = header[table_header.start():]
+        if table_header and re.search(r"\bIP\s+Contribution\b", header, re.I):
+            markers = (
+                re.search(r"\b(?:No\.?\s*Of\s*)?Days\b", header, re.I),
+                re.search(r"\b(?:Total\s+)?Wages\b", header, re.I),
+                re.search(r"\bIP\s+Contribution\b", header, re.I),
+            )
+            if any(marker is None for marker in markers) or not (
+                markers[0].start() < markers[1].start() < markers[2].start()
+            ):
+                raise UserInputError(
+                    "The ESIC ECR column order is not supported. Expected No. of Days, Total Wages, "
+                    "then IP Contribution. No verification report was generated."
+                )
+            if not re.fullmatch(r"\s*(?:Reason)?\s*", header[markers[2].end():], re.I):
+                raise UserInputError(
+                    "The ESIC ECR has unsupported columns after IP Contribution. "
+                    "No verification report was generated."
+                )
         if out.header_total is None:
             m = re.search(r"Total IP Contribution.*?\n\s*([\d,]+\.\d+)", text, re.S)
             if m:
                 out.header_total = to_dec(m.group(1))
-        for line in text.splitlines():
+
+        for line in _logical_member_rows(text, loose, lambda candidate: bool(row_re.match(candidate))):
             m = row_re.match(line)
             if m:
                 out.rows.append({"sl": m.group(1), "id": m.group(3), "name": m.group(4).strip(), "repo_name": "",

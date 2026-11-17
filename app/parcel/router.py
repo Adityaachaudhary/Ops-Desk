@@ -44,8 +44,15 @@ def _page(request, error=None, **kw):
 
 
 @router.get("")
-def index(request: Request):
-    return _page(request)
+def index(request: Request, new: bool = False):
+    cookie = jobs.resume_cookie_name(CASE_TYPE)
+    url = jobs.resume_url(request.cookies, CASE_TYPE)
+    if not new and url:
+        return RedirectResponse(url, status_code=303)
+    response = _page(request)
+    if request.cookies.get(cookie) and not url:
+        response.delete_cookie(cookie)
+    return response
 
 
 def _queue(folder: Path, title: str) -> str:
@@ -104,8 +111,10 @@ def job_page(request: Request, jid: str):
     if not j:
         return render(request, "error.html", status_code=404, title="Job not found", message="This parcel job does not exist.")
     rows = db.query("SELECT * FROM parcel_results WHERE job_id=? ORDER BY idx", (jid,))
-    return render(request, "parcel_job.html", active="parcel", job=j, rows=rows, counts=_counts(jid), help=STATUS_HELP,
-                  events=jobs.events(jid, 8))
+    response = render(request, "parcel_job.html", active="parcel", job=j, rows=rows, counts=_counts(jid), help=STATUS_HELP,
+                      events=jobs.events(jid, 8))
+    jobs.remember_job(response, jid, CASE_TYPE)
+    return response
 
 
 @router.get("/jobs/{jid}/rows")

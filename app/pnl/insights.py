@@ -37,9 +37,9 @@ def day_insight(day: dict, anomalies: list[dict], days_hist: list[dict], r: Rule
         desc = []
         for a in lines:
             word = "above max" if a["status"] == "ABOVE MAX" else "below min"
-            desc.append(f"{a['line_item']} = {a['pct']:.1f}% ({word}, target {a['target_range']})")
+            desc.append(f"{a['line_item']} = {a['pct']:g}% ({word}, target {a['target_range']})")
         parts.append("Breaches: " + "; ".join(desc) + ".")
-        top = ", ".join(f"{i + 1}) {a['line_item']} {abs(a['excess_pp']):.1f}pp (~{_inr(a['impact_inr'])})" for i, a in enumerate(lines[:3]))
+        top = ", ".join(f"{i + 1}) {a['line_item']} {abs(a['excess_pp']):g}pp (~{_inr(a['impact_inr'])})" for i, a in enumerate(lines[:3]))
         parts.append(f"Top contributors by impact: {top}.")
     cm_flags = [a for a in anomalies if a["line_item"] in ("CM1", "CM2") and a["severity"] != "watch"]
     for a in cm_flags:

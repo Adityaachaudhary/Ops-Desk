@@ -24,7 +24,7 @@ Output workbook: `Summary` (counts per verdict for PF and ESIC, run settings, wa
 ## Verdicts
 | Verdict | Rule |
 |---|---|
-| **Matched** | Identifier found, name matches (tolerantly), amount equal within the rounding tolerance. |
+| **Matched** | Identifier found, name matches (tolerantly), and the amount matches exactly by default (or falls within an explicitly configured tolerance). |
 | **Name mismatch** | Identifier found, ECR name is a different person. If the amount also differs this is stated in the reason. |
 | **Amount mismatch** | Identifier and name fine, amount differs. Reason shows **both values and the difference** (`Submitted - Expected` = ECR - wagesheet). |
 | **Missing** | UAN / IP Number not in the ECR at all (or blank in the wagesheet while an amount was deducted). |
@@ -38,7 +38,7 @@ Precedence when several things are wrong: Missing -> Name mismatch -> Amount mis
 * **Identifier first, exact, as strings.** UAN/IP are never fuzzy-matched and never treated as numbers (leading zeros, `1.23E+11`, `123.0` artefacts from Excel are repaired). Fuzzy logic is applied only to names, and only *after* the identifier matched, so a fuzzy score can never turn a stranger into a "match".
 * **Streaming PDF parse** (`pdfplumber`, page by page, cache flushed) so hundreds of pages work; progress is reported per page. Nothing is hard-coded to the sample: rows are recognised by shape (serial + 12-digit UAN / 8-17-digit IP + trailing numbers).
 * **Self-checks on the parse:** parsed member count vs the ECR header's *Total Members*, parsed EE total vs *Total EPF Contribution*, parsed IP total vs *Total IP Contribution*. A mismatch produces a visible warning, and lines that look like member rows but could not be parsed are listed - so a silently dropped employee cannot hide as "Missing".
-* **Money:** `Decimal`, no floats. Default tolerance **Rs 1** (editable per run, 0 = exact) because vendors round 0.75 % and 12 % differently (ceil vs round); the difference is still shown in the sheet.
+* **Money:** `Decimal`, no floats. Default tolerance is **Rs 0 (exact)**, as specified by the brief. An operator can enter a non-zero tolerance only when policy explicitly permits rounding; the chosen tolerance and amount difference remain visible in the report.
 
 ## Name matching tolerance (the heart of the problem)
 Normalise: unidecode -> uppercase -> strip punctuation/digits/honorifics (MR, MRS, SHRI, SMT, DR...) -> collapse spaces. Then:
@@ -66,18 +66,18 @@ Outputs: `outputs/sample_outputs/compliance_sample.xlsx`. A **synthetic 300+-pag
 `python -m tests.make_big_ecr` writes a wagesheet plus PF and ESIC ECR PDFs of **13,500 employees / 276 pages each** in the sample's text layout, with injected faults (missing IDs, amount errors, wrong names) and 8 % benign name noise (reversed word order, double spaces, case). On one CPU core: each PDF parses in **~35-40 s**, matching 13,500 employees takes **0.4 s**, **0 unparsed lines, 0 checksum warnings**. Scored against the injected truth (27,000 PF+ESIC verdicts): every Missing (271 PF / 290 ESIC) and Amount mismatch (271 / 280) found, 247 / 267 wrong names caught, **zero false alarms on the benign variations**. The 11 "misses" are all the generator replacing the *last word* of a 3-word name, which leaves a legitimate "one word missing" variant (e.g. `ANIL THAKUR KHAN` vs `ANIL KHAN`) - accepted by design; flip `ALLOW_ONE_MISSING_WORD = False` in `matcher.py` to be stricter. This proves scale and the matching policy, **not** that real EPFO/ESIC layouts all parse - see limitations. `tests/test_scale.py` runs a 1,500-employee version.
 
 ## Bad input
-Missing file slot, wrong extension, empty file, renamed/corrupt PDF, password-protected PDF, scanned (no text layer) PDF, PF PDF uploaded in the ESIC slot (no member rows found), wagesheet without a header or without PF/ESIC columns -> a plain-language message on the upload page (validated before the job is queued) or on the failed job (with a Retry button). Never a stack trace.
+Missing file slot, wrong extension, empty file, renamed/corrupt PDF, password-protected PDF, scanned (no text layer) PDF, text-based PF/ESIC PDFs uploaded in the opposite slots, or a wagesheet without required headers -> a plain-language message on the upload page or on the failed job. The upload preflight checks the first three text pages for clear PF/ESIC markers; image-only PDFs and unrecognized layouts continue through the existing background job validation.
 
 ## Known limitations (honest list)
 * **OCR is a fallback, not a guarantee.** Scanned/image-only pages require the Tesseract OS binary and can still produce unparsed rows; parse warnings and total checks remain important. PF OCR rows with an uncertain final digit are sent to Manual review instead of being auto-approved. Text-layer PDFs continue to use the original parser.
-* Only the sample ECR layouts were available. Rows are matched by shape and the EE share is taken relative to the right-hand end, which tolerates column additions, but a layout that wraps a member over two lines will be reported as *unparsed lines* (not silently dropped) and the checksums will warn.
+* Only the sample ECR layouts were available. Wrapped member rows are joined across up to three extracted text lines. Recognized PF/ESIC table headers are checked for the supported contribution-column order; a detected reordered header fails closed with a clear message instead of risking the wrong amount. Other unseen headers may still require adaptation; parse warnings and total checks remain important.
 * PF "Name as per ECR" and "Name as per UAN Repository" print side by side with only a space between them; they are separated by finding the split where both halves are most similar. If that is ambiguous the row goes to **Manual review**.
 * A person appearing twice in the wagesheet with *different* UANs is not detected as a duplicate person.
 * No check that the wagesheet's own 12 % / 0.75 % arithmetic is correct against wages (only wagesheet vs ECR, as specified).
 * Verified on the 12-row sample plus synthetic data; no real 100s-of-pages ECR was available to test against.
 
 ## With more time
-Wrapped-row repair and column-position detection from PDF coordinates; improve OCR robustness and add side-by-side PDF page preview for reviewers; check ECR wages x 12 % / 0.75 % independently; person-level duplicate detection (same name + DOB/Aadhaar-last-4); month-over-month tracking of recurring mismatches.
+PDF-coordinate column detection and support for additional verified ECR layouts; improve OCR robustness and add side-by-side PDF page preview for reviewers; check ECR wages x 12 % / 0.75 % independently; person-level duplicate detection (same name + DOB/Aadhaar-last-4); month-over-month tracking of recurring mismatches.
 
 ## Where things live
 `parser.py` (Excel + PDF extraction, checksums) - `matcher.py` (names) - `verifier.py` (verdict logic) - `report.py` (Excel) - `service.py` (job handler) - `router.py` (pages/API).

@@ -1,6 +1,6 @@
 """Deterministic reconciliation: wagesheet row -> PF ECR (by UAN) and ESIC ECR (by IP Number).
-Identifier match is EXACT (string). Names are then compared tolerantly; amounts with Decimal and a
-small documented rounding tolerance. Ambiguity (duplicates, unreadable name column) -> 'Manual review'."""
+Identifier match is EXACT (string). Names are then compared tolerantly; amounts with Decimal and an exact-match default (an explicitly approved tolerance can be configured).
+Ambiguity (duplicates, unreadable name column) -> 'Manual review'."""
 from collections import Counter, defaultdict
 from decimal import Decimal
 
@@ -69,7 +69,7 @@ def _check(kind, ident, ws_name, ws_amt, ws_raw, ecr_idx, ws_dups, tol, id_label
     return {**base, "status": MATCHED, "reason": f"{id_label} found{tail}; {amt_label} {fmt(ws_amt)} vs ECR {fmt(h['amount'])}{rnd}."}
 
 
-def verify(ws_rows, pf, esic, tolerance: Decimal = Decimal("1")):
+def verify(ws_rows, pf, esic, tolerance: Decimal = Decimal("0")):
     pf_idx, es_idx = _index(pf.rows), _index(esic.rows)
     uan_count = Counter(r["uan"] for r in ws_rows if r["uan"])
     ip_count = Counter(r["ip"] for r in ws_rows if r["ip"])
