@@ -47,6 +47,8 @@ def _check(kind, ident, ws_name, ws_amt, ws_raw, ecr_idx, ws_dups, tol, id_label
     base.update(ecr_name=h["name"], ecr_amount=fmt(h["amount"]))
     if h.get("name_ambiguous"):
         return {**base, "status": REVIEW, "reason": f"Could not separate the two name columns in the ECR row ('{h['name']}'); verify name manually."}
+    if h.get("ocr_ambiguous"):
+        return {**base, "status": REVIEW, "reason": "OCR was uncertain about a PF ECR numeric field; verify the row manually."}
     if ws_amt is None:
         return {**base, "status": REVIEW, "reason": f"Wagesheet {amt_label} amount is blank/unreadable ('{ws_raw}'); ECR shows {fmt(h['amount'])}."}
     nr = compare_names(ws_name, h["name"])

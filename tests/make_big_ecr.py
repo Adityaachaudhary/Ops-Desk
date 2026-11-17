@@ -8,8 +8,8 @@ import time
 from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
 
-import pandas as pd
 from fpdf import FPDF
+from openpyxl import Workbook
 
 OUT = Path(__file__).resolve().parents[1] / "data" / "generated" / "big_ecr"
 FIRST = "ANIL SUNITA RAKESH PRIYA MANOJ KAVITA DEVENDRA REKHA SANJAY POOJA VIKRAM NEHA RAHUL AMIT RAVI SEEMA GEETA MOHAMMAD SALMAN FATIMA DINESH SURESH RAMESH LAKSHMI".split()
@@ -53,7 +53,12 @@ def make(n=13500, seed=7):
         rows.append((i, uan, ip, name, pf_name, es_name, pf_amt, es_amt, pf_in, es_in, wages))
         ws_rows.append({"Name": name, "UAN": uan, "IP Number": ip, "Agency": "Synthetic Staffing", "State": "Bihar",
                         "ESIC @ 0.75%": esic, "PF @ 12%": pf})
-    pd.DataFrame(ws_rows).to_excel(OUT / "wagesheet_big.xlsx", index=False)
+    wb = Workbook(write_only=True)
+    ws = wb.create_sheet("Wagesheet")
+    ws.append(["Name", "UAN", "IP Number", "Agency", "State", "ESIC @ 0.75%", "PF @ 12%"])
+    for row in ws_rows:
+        ws.append([row[k] for k in ("Name", "UAN", "IP Number", "Agency", "State", "ESIC @ 0.75%", "PF @ 12%")])
+    wb.save(OUT / "wagesheet_big.xlsx")
     _pdf(OUT / "PF_ECR_big.pdf", "PF", [r for r in rows if r[8]])
     _pdf(OUT / "ESIC_ECR_big.pdf", "ESIC", [r for r in rows if r[9]])
     (OUT / "ground_truth.json").write_text(json.dumps(truth))

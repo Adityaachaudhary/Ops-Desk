@@ -4,6 +4,7 @@ python-multipart>=0.0.9
 jinja2>=3.1
 openpyxl>=3.1
 pdfplumber>=0.10
+pypdfium2>=4.18
 rapidfuzz>=3.0
 unidecode>=1.3
 httpx>=0.25            # only used by tests

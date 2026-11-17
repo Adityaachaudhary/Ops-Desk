@@ -13,13 +13,13 @@ One small web app, three independent automations. Each case has its **own README
 git clone <repo> && cd prozo-agentic-ai
 python3 -m venv .venv && . .venv/bin/activate              # Windows: .venv\Scripts\activate
 pip install -r requirements.txt                             # everything incl. Case 1 libs
-#   Cases 2 + 3 only?  pip install -r requirements-core.txt (no OpenCV / pytesseract)
-# Case 1 only - install the Tesseract OCR engine on the OS:
+#   Cases 2 + 3 only?  pip install -r requirements-core.txt (no OpenCV; Tesseract is optional for scanned ECRs)
+# Case 1 and scanned Case 2 PDFs - install the Tesseract OCR engine on the OS:
 #   Ubuntu/Debian: sudo apt install tesseract-ocr    macOS: brew install tesseract    Windows: `winget install UB-Mannheim.TesseractOCR` (or the UB-Mannheim installer), then add `C:\Program Files\Tesseract-OCR` to PATH and restart the terminal
 uvicorn app.main:app --port 8000                            # or ./run.sh  /  run.bat
 ```
 Open **http://localhost:8000**. Every module has a **"Run sample"** button, so a reviewer sees results in one click, and each module accepts your own files.
-Tests: `pytest` (36 tests: field parsing, name matching, verdicts, P&L rules, a 1,500-employee multi-page ECR scale test, and API end-to-end with bad inputs; the API tests use a temp database and Case 1 degrades gracefully without Tesseract).
+Tests: `pytest` (45 tests: field parsing, parcel/OCR fallbacks, compliance matching and scanned-PDF OCR, P&L rules and inbox watching, a 1,500-employee multi-page ECR scale test, and API end-to-end with bad inputs).
 
 ## What the brief's "common requirements" map to
 | Requirement | Where / how |
@@ -32,8 +32,8 @@ Tests: `pytest` (36 tests: field parsing, name matching, verdicts, P&L rules, a 
 
 ## Isolation between the modules
 * Each module lives in its own package and exposes only `router`, `CASE_TYPE` and `handle`. `app/main.py` imports them one by one inside `try/except`; a module that fails to import shows as **disabled** in the sidebar and the other two keep working.
-* **Tesseract / OpenCV / pytesseract are imported only inside Case 1 code paths, lazily.** Cases 2 and 3 never touch them (verified by running both with those libraries blocked from import). Without Tesseract, the Parcel page shows an install hint instead of failing.
-* The shared core (`app/core/`: config, SQLite, job queue, upload validation) knows nothing about any case; it is the only single point of failure and is covered by the API tests.
+* **OCR remains lazy and optional.** Case 1 uses Tesseract; Case 2 uses it only for image-only PDF pages. Case 3 does not use OCR. Text-based ECR PDFs and the other modules keep working without the Tesseract OS binary.
+* The shared core (`app/core/`) provides configuration, SQLite persistence, the job queue and upload validation; case-specific processing stays in each module package. The common core is covered by API tests.
 
 ## Layout
 ```
@@ -42,14 +42,14 @@ app/
   core/              config, db (SQLite), jobs (persistent queue + worker), web (templates)
   parcel/            Case 1: fields.py (overlay text -> AWB/weight/dims), ocr.py, scene.py, pipeline.py, service.py, router.py
   compliance/        Case 2: parser.py, matcher.py, verifier.py, report.py, service.py, router.py
-  pnl/               Case 3: loader.py, config.py, calculator.py, anomalies.py, insights.py, notifier.py, charts.py, datagen.py, service.py, router.py
+  pnl/               Case 3: loader.py, config.py, calculator.py, anomalies.py, insights.py, notifier.py, charts.py, datagen.py, watcher.py, service.py, router.py
   web/               templates/ + static/ (one stylesheet, ~80 lines of JS)
 data/sample/         provided samples (case1 subset, case2, case3) + the extended Case 3 sample
 outputs/sample_outputs/  what the system produced from those samples (CSV / XLSX / digests)
 tests/               pytest suite + synthetic scale-test generator
 docs/                architecture notes and a demo/live-review cheat sheet
 ```
-Database: `data/prozo.db` (created on first run). Tables: `jobs`, `job_events`, `parcel_results`, `compliance_results`, `fc_daily_records`, `fc_anomalies`, `fc_alerts`, `overrides`, `audit_logs`.
+Database: `data/prozo.db` (created on first run). Tables: `jobs`, `job_events`, `parcel_results`, `compliance_results`, `fc_daily_records`, `fc_anomalies`, `fc_alerts`, `pnl_inbox_seen`, `overrides`, `audit_logs`.
 
 ## Principles I held to
 1. Never fabricate extracted data; a wrong value is worse than an honest flag.
@@ -58,7 +58,7 @@ Database: `data/prozo.db` (created on first run). Tables: `jobs`, `job_events`, 
 4. Every record keeps traceability (file name / source row / reason text) so a reviewer can see *why* it was flagged.
 
 ## Honest overall limitations
-See each module's README. In short: Case 1 is a heuristic OCR + OpenCV system with measured (not perfect) accuracy; Case 2 reads text-layer PDFs only; Case 3's e-mail/Slack code could not be exercised against real servers from my sandbox (dry-run verified). The web UI was tested through the API test client and rendered-HTML checks, not manually in every browser.
+See each module's README. In short: Case 1 is a heuristic OCR + OpenCV system with measured (not perfect) accuracy; Case 2 parses text-layer PDFs and uses local Tesseract OCR for image-only pages; Case 3 supports an opt-in local inbox watcher. Email/Slack delivery remains unverified and out of scope for this implementation pass. The web UI was tested through the API test client and rendered-HTML checks, not manually in every browser.
 
 
 ## Windows notes

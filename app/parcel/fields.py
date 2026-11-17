@@ -89,7 +89,9 @@ def _clean_awb(raw: str, o: Overlay) -> str | None:
 
 def parse_awb(text: str, o: Overlay) -> str | None:
     pat = re.compile(
-        r"(?im)^\W*(?:AWB[\s_]*(?:No|Number|Num)?[\s_]*\.?|Bar\s*code|Tracking(?:\s*(?:No|Number))?|Waybill(?:\s*No)?)\s*[:：=;\-]?\s*(.+)$"
+        r"(?im)^\W*(?:AWB[\s_]*(?:No|Number|Num)?[\s_]*\.?|Bar\s*code|"
+        r"Tracking(?:\s*(?:No|Number|ID))?|Shipment\s*(?:Tracking\s*)?(?:No|Number|ID)|"
+        r"Waybill(?:\s*(?:No|Number))?)\s*[:：=;\-]?\s*(.+)$"
     )
     for m in pat.finditer(text):
         awb = _clean_awb(m.group(1), o)

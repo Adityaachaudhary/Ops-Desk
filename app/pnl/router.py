@@ -1,3 +1,4 @@
+import os
 import uuid
 import shutil
 from collections import defaultdict
@@ -24,7 +25,8 @@ KEYS = [k for k, *_ in LINE_ITEMS]
 
 def _page(request, error=None):
     return render(request, "pnl.html", active="pnl", error=error, history=jobs.list_jobs(CASE_TYPE, 15), has_sample=SAMPLE.exists(),
-                  smtp=bool(__import__("os").getenv("SMTP_HOST")), slack=bool(__import__("os").getenv("SLACK_WEBHOOK_URL")))
+                  smtp=bool(os.getenv("SMTP_HOST")), slack=bool(os.getenv("SLACK_WEBHOOK_URL")),
+                  inbox_dir=os.getenv("PROZO_PNL_INBOX_DIR", "").strip())
 
 
 @router.get("")

@@ -8,6 +8,7 @@
   <div class="row" style="margin-top:12px"><label class="small"><input type="checkbox" name="send" value="1" checked> Send each FC's digest to its manager (uses configured channels, otherwise saved as a dry run)</label></div>
   <div class="row" style="margin-top:14px"><button class="btn primary" type="submit">Analyse</button>
   {% if has_sample %}<button class="btn" formaction="/pnl/sample" formenctype="application/x-www-form-urlencoded" type="submit">Run extended sample</button>{% endif %}</div>
+  {% if inbox_dir %}<p class="small muted">Automatic inbox monitoring is active for <span class="mono">{{ inbox_dir }}</span>. New CSV/XLSX files are queued after they stop changing.</p>{% endif %}
  </form></section>
  <section class="card"><div class="card-h"><h2>Delivery channels</h2></div>
   <dl class="kv"><dt>E-mail (SMTP)</dt><dd>{{ m.pill('Green', 'configured') if smtp else m.pill('Grey', 'not configured') }}</dd>

@@ -1,10 +1,9 @@
 """Builds the extended sample: 4 synthetic FCs x 30 days with guaranteed scenarios + the first 30 days of the provided data.
 Deterministic (seeded). Run:  python -m app.pnl.datagen"""
 import random
+import csv
 from datetime import date, timedelta
 from pathlib import Path
-
-import pandas as pd
 
 from .config import LINE_ITEMS
 
@@ -23,7 +22,7 @@ SCENARIOS = {
 }
 
 
-def generate(seed: int = 42) -> pd.DataFrame:
+def generate(seed: int = 42) -> list[list]:
     rnd = random.Random(seed)
     rows = []
     for fc, sc in SCENARIOS.items():
@@ -36,19 +35,17 @@ def generate(seed: int = 42) -> pd.DataFrame:
             for k in KEYS:
                 row.append(None if pct[k] is None else round(rev * pct[k] / 100))
             rows.append(row)
-    return pd.DataFrame(rows, columns=COLS)
+    return rows
 
 
-def with_provided(provided_xlsx: Path | None) -> pd.DataFrame:
+def with_provided(provided_xlsx: Path | None) -> list[list]:
     df = generate()
     if provided_xlsx and Path(provided_xlsx).exists():
         from .loader import load_daily
         recs, _ = load_daily(provided_xlsx, "FC Sample (provided data)")
-        extra = []
         for i, r in enumerate(recs[:30]):
-            extra.append([(START + timedelta(days=i)).isoformat(), r["fc"], r["revenue"], r["manpower"], r["packaging"], r["power_fuel"],
-                          r["fc_rent"], r["equipment"], r["overheads"]])
-        df = pd.concat([df, pd.DataFrame(extra, columns=COLS)], ignore_index=True)
+            df.append([(START + timedelta(days=i)).isoformat(), r["fc"], r["revenue"], r["manpower"], r["packaging"], r["power_fuel"],
+                       r["fc_rent"], r["equipment"], r["overheads"]])
     return df
 
 
@@ -57,5 +54,9 @@ if __name__ == "__main__":
     out.mkdir(parents=True, exist_ok=True)
     src = out / "Case_Study_3.xlsx"
     d = with_provided(src)
-    d.to_csv(out / "case3_extended_sample.csv", index=False)
-    print("wrote", out / "case3_extended_sample.csv", len(d), "rows")
+    target = out / "case3_extended_sample.csv"
+    with target.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(COLS)
+        writer.writerows(d)
+    print("wrote", target, len(d), "rows")

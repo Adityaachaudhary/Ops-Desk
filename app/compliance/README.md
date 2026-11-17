@@ -3,21 +3,21 @@
 Confirms, employee by employee, that what the vendor deducted in the wagesheet was deposited with the authorities:
 **right person, right identifier, right amount** - separately for **PF** (UAN, EE share) and **ESIC** (IP Number, IP contribution).
 
-## Run it (under 15 minutes, no paid keys, no Tesseract)
+## Run it (under 15 minutes, no paid keys; text PDFs need no Tesseract)
 ```bash
 python -m venv .venv && . .venv/bin/activate          # Windows: .venv\Scripts\activate
-pip install -r requirements-core.txt                   # light install: this module needs no OCR/OpenCV
+pip install -r requirements-core.txt                   # no OpenCV; scanned-PDF fallback also needs Tesseract installed on the OS
 uvicorn app.main:app --port 8000                       # open http://localhost:8000/compliance
 ```
-Click **Run sample (Aug-25)**, or upload your own three files. Results page -> **Download Excel report** (and CSV).
+Click **Run sample (Aug-25)**, or upload your own three files. Text-based PDFs run without Tesseract; image-only pages use local Tesseract OCR when it is installed. Results page -> **Download Excel report** (and CSV).
 The whole module also runs from the command line / tests: `pytest tests/test_compliance.py tests/test_matcher.py`.
 
 ## Input -> output
 | Input | Notes |
 |---|---|
 | Wagesheet `.xlsx/.xls/.csv` | Header row is auto-detected (first 25 rows). Columns recognised by meaning, not position: Name, UAN, IP Number, Agency, State, `ESIC @ 0.75%`, `PF @ 12%`. |
-| PF ECR PDF | EPFO text PDF. Members by UAN; **EE share** = the 4th numeric column from the right (EE, EPS, ER, NCP days), so extra wage columns do not break it. |
-| ESIC ECR PDF | Contribution history. IP Number, name, days, wages, **IP contribution**. |
+| PF ECR PDF | EPFO PDF. Text pages are parsed directly; image-only pages are rendered and OCRed locally. Members by UAN; **EE share** = the 4th numeric column from the right (EE, EPS, ER, NCP days), so extra wage columns do not break it. |
+| ESIC ECR PDF | Contribution history. Text pages are parsed directly; image-only pages are rendered and OCRed locally. IP Number, name, days, wages, **IP contribution**. |
 
 Output workbook: `Summary` (counts per verdict for PF and ESIC, run settings, warnings) - `Employee Verification` (status + reason + both amounts + difference, PF and ESIC separately) - `PF Exceptions` - `ESIC Exceptions` - `In ECR not in Wagesheet` - `Parse Warnings`.
 
@@ -28,7 +28,7 @@ Output workbook: `Summary` (counts per verdict for PF and ESIC, run settings, wa
 | **Name mismatch** | Identifier found, ECR name is a different person. If the amount also differs this is stated in the reason. |
 | **Amount mismatch** | Identifier and name fine, amount differs. Reason shows **both values and the difference** (`Submitted - Expected` = ECR - wagesheet). |
 | **Missing** | UAN / IP Number not in the ECR at all (or blank in the wagesheet while an amount was deducted). |
-| **Manual review** *(extra, deliberate)* | Duplicate identifier in the wagesheet or ECR; ECR row whose two name columns could not be separated; wagesheet amount unreadable. These are **never auto-approved**. |
+| **Manual review** *(extra, deliberate)* | Duplicate identifier in the wagesheet or ECR; ECR row whose two name columns could not be separated; wagesheet amount unreadable; or an OCR-uncertain PF digit. These are **never auto-approved**. |
 | **Not applicable** *(extra)* | No identifier **and** nothing deducted (e.g. employee outside ESIC coverage) - nothing to deposit. |
 
 Precedence when several things are wrong: Missing -> Name mismatch -> Amount mismatch (the reason text still mentions the other problem).
@@ -69,7 +69,7 @@ Outputs: `outputs/sample_outputs/compliance_sample.xlsx`. A **synthetic 300+-pag
 Missing file slot, wrong extension, empty file, renamed/corrupt PDF, password-protected PDF, scanned (no text layer) PDF, PF PDF uploaded in the ESIC slot (no member rows found), wagesheet without a header or without PF/ESIC columns -> a plain-language message on the upload page (validated before the job is queued) or on the failed job (with a Retry button). Never a stack trace.
 
 ## Known limitations (honest list)
-* **Text-layer PDFs only.** Scanned ECRs are rejected with a message. The brief's suggested OCR fallback was intentionally left out so this module has zero OCR dependencies (Case 1 owns Tesseract).
+* **OCR is a fallback, not a guarantee.** Scanned/image-only pages require the Tesseract OS binary and can still produce unparsed rows; parse warnings and total checks remain important. PF OCR rows with an uncertain final digit are sent to Manual review instead of being auto-approved. Text-layer PDFs continue to use the original parser.
 * Only the sample ECR layouts were available. Rows are matched by shape and the EE share is taken relative to the right-hand end, which tolerates column additions, but a layout that wraps a member over two lines will be reported as *unparsed lines* (not silently dropped) and the checksums will warn.
 * PF "Name as per ECR" and "Name as per UAN Repository" print side by side with only a space between them; they are separated by finding the split where both halves are most similar. If that is ambiguous the row goes to **Manual review**.
 * A person appearing twice in the wagesheet with *different* UANs is not detected as a duplicate person.
@@ -77,7 +77,7 @@ Missing file slot, wrong extension, empty file, renamed/corrupt PDF, password-pr
 * Verified on the 12-row sample plus synthetic data; no real 100s-of-pages ECR was available to test against.
 
 ## With more time
-Wrapped-row repair and column-position detection from PDF coordinates; scanned-PDF OCR as an optional plug-in; check ECR wages x 12 % / 0.75 % independently; person-level duplicate detection (same name + DOB/Aadhaar-last-4); month-over-month tracking of recurring mismatches; side-by-side PDF page preview for reviewers.
+Wrapped-row repair and column-position detection from PDF coordinates; improve OCR robustness and add side-by-side PDF page preview for reviewers; check ECR wages x 12 % / 0.75 % independently; person-level duplicate detection (same name + DOB/Aadhaar-last-4); month-over-month tracking of recurring mismatches.
 
 ## Where things live
 `parser.py` (Excel + PDF extraction, checksums) - `matcher.py` (names) - `verifier.py` (verdict logic) - `report.py` (Excel) - `service.py` (job handler) - `router.py` (pages/API).

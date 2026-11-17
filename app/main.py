@@ -1,8 +1,8 @@
 """Operations Intelligence - one FastAPI app, three isolated modules.
 
 Run:  uvicorn app.main:app --port 8000
-Isolation: each module is imported inside try/except and registered separately; Case 1 needs Tesseract,
-Cases 2 and 3 never import it. If a module fails to import it is shown as disabled, the others keep working."""
+Isolation: each module is imported inside try/except and registered separately; Case 1 uses Tesseract,
+Case 2 uses it only for image-only PDF pages, and Case 3 never uses it. If a module fails to import it is shown as disabled."""
 import importlib
 import logging
 
@@ -33,6 +33,12 @@ for key in ("parcel", "compliance", "pnl"):
 def _startup():
     db.query("SELECT 1")  # creates schema
     jobs.start_workers()
+    if MODULES["pnl"]["enabled"]:
+        try:
+            from .pnl.watcher import start_watcher
+            start_watcher()
+        except Exception:
+            log.exception("P&L inbox watcher could not start")
 
 
 @app.get("/")
@@ -110,6 +116,6 @@ async def server_error(request: Request, exc: Exception):
     log.exception("unhandled error")
     if request.url.path.startswith("/api/") or request.headers.get("x-requested-with") == "XMLHttpRequest":
         return JSONResponse({"error": "Unexpected server error"}, status_code=500)
-        return render(request, "error.html", status_code=500, title="Something went wrong",
+    return render(request, "error.html", status_code=500, title="Something went wrong",
                   message="The request could not be completed. Nothing was lost - please try again or contact the maintainer.",
                   detail=f"{type(exc).__name__}: {exc}")

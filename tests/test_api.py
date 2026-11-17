@@ -4,14 +4,16 @@ import re
 import stat
 import tempfile
 import time
+import asyncio
 
 import pytest
 
 os.environ["PROZO_DATA_DIR"] = tempfile.mkdtemp()
 os.environ["PROZO_OUTPUT_DIR"] = tempfile.mkdtemp()
 from fastapi.testclient import TestClient  # noqa: E402
+from starlette.requests import Request  # noqa: E402
 
-from app.main import app  # noqa: E402
+from app.main import app, server_error  # noqa: E402
 from app.core import db  # noqa: E402
 from app.core.config import OUTPUT_DIR, UPLOAD_DIR  # noqa: E402
 
@@ -39,6 +41,18 @@ def test_pages_load(client):
     for p in ("/", "/parcel", "/compliance", "/pnl", "/jobs", "/api/health"):
         assert client.get(p).status_code == 200
     assert client.get("/nope").status_code == 404
+
+
+def test_unhandled_html_error_returns_error_page():
+    scope = {
+        "type": "http", "asgi": {"version": "3.0"}, "http_version": "1.1",
+        "method": "GET", "scheme": "http", "path": "/broken",
+        "raw_path": b"/broken", "query_string": b"", "headers": [],
+        "server": ("test", 80), "client": ("test", 1234), "root_path": "",
+    }
+    response = asyncio.run(server_error(Request(scope), RuntimeError("test failure")))
+    assert response.status_code == 500
+    assert "Something went wrong" in response.body.decode()
 
 
 def test_job_created_time_is_marked_as_utc_for_local_display(client):

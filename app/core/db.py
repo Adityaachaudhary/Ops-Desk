@@ -45,6 +45,9 @@ CREATE INDEX IF NOT EXISTS ix_fcal_job ON fc_alerts(job_id);
 CREATE TABLE IF NOT EXISTS overrides(
   id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT, fc TEXT, day TEXT, line_item TEXT, note TEXT, actor TEXT);
 CREATE TABLE IF NOT EXISTS audit_logs(id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT, actor TEXT, action TEXT, detail TEXT);
+CREATE TABLE IF NOT EXISTS pnl_inbox_seen(
+  source_path TEXT, fingerprint TEXT, job_id TEXT, detected_at TEXT,
+  PRIMARY KEY(source_path, fingerprint));
 """
 
 

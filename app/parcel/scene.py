@@ -58,13 +58,22 @@ def analyse(img: Image.Image, text_box=None, work_w: int = 900) -> dict:
     if comps:
         big = comps[0]["area"]
         comps = [c for c in comps if c["area"] >= 0.60 * big]
-    barcodes = 0
+    barcodes, barcode_values = 0, []
     det = _barcode_detector()
     if det and comps:
         try:
-            ok, pts = det.detect(cv2.resize(g, None, fx=1.0, fy=1.0))
-            barcodes = 0 if (not ok or pts is None) else len(pts)
+            ok, decoded, _, pts = det.detectAndDecodeWithType(g)
+            barcodes = len(pts) if pts is not None else 0
+            barcode_values = [value.strip() for value in decoded if value and value.strip()]
+            if not ok and not barcodes:
+                found, pts = det.detect(g)
+                barcodes = len(pts) if found and pts is not None else 0
         except Exception:
-            barcodes = 0
+            try:
+                found, pts = det.detect(g)
+                barcodes = len(pts) if found and pts is not None else 0
+            except Exception:
+                barcodes = 0
+            barcode_values = []
     return {"parcels": len(comps), "cut": [c["cut"] for c in comps], "fracs": [c["frac"] for c in comps],
-            "barcodes": barcodes}
+            "barcodes": barcodes, "barcode_values": barcode_values}

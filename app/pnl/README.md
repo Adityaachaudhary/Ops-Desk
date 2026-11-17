@@ -11,6 +11,8 @@ uvicorn app.main:app --port 8000              # open http://localhost:8000/pnl
 Click **Run extended sample** (5 FCs x 30 days) or upload the provided `Case Study 3.xlsx` (single FC, "Day 1..100"), or your own CSV/Excel.
 Tabs on the result page: **Dashboard** (latest status per FC, FC x day heat-map, CM2 trend charts) - **Anomalies log** - **Daily P&L** - **Digests** (preview any FC/day, send now, delivery log) - **Rules used**. Downloads: Excel workbook, anomalies CSV.
 
+For unattended ingestion, set `PROZO_PNL_INBOX_DIR` to a local folder before starting the app. New `.csv`, `.tsv`, `.xlsx`, and `.xlsm` files are queued after their size and modification time remain stable for two scans. Each inbox job generates the same dashboard and workbook as a manual upload; inbox jobs do not send e-mail or Slack automatically. Manual uploads are unchanged. Use one completed daily file per FC/day when the digest should represent that day's numbers.
+
 ### Delivering digests over a real channel (free options)
 No channel configured -> digests are rendered, saved to `outputs/digests/<job>/` and clearly marked **dry run** (the UI never pretends something was sent).
 * **E-mail (SMTP):** `export SMTP_HOST=smtp.gmail.com SMTP_PORT=587 SMTP_USER=you@gmail.com SMTP_PASSWORD=<gmail app password>`; manager addresses in `data/fc_managers.json`.
@@ -55,7 +57,7 @@ A single orchestrated workflow of four deterministic stages - **Monitor** (load,
 Empty file, corrupt Excel, no header, missing required column (named in the message), non-numeric / negative / blank cells (row flagged, not crashed), duplicate days, no FC column (use the "FC name" box), zero revenue -> clear message or Grey/DATA ISSUE rows.
 
 ## Known limitations
-* Digests are generated for the **latest day** of each FC automatically; other days can be previewed/sent on demand from the Digests tab. There is no scheduler/cron: "daily" means "run when the day's file arrives" (a cron/`curl` or n8n call to `/pnl/upload` is the intended trigger).
+* The inbox watcher is opt-in and local to one app process. It queues files, but does not manage a recurring upstream export or guarantee manager delivery. Manual uploads remain available. Automatic digest generation uses the latest day in each uploaded file; older days can be previewed/sent on demand from the Digests tab.
 * Slack/Email feature: Have to verify once with your credentials  (the Send button shows the real error if it fails).
 * "Memory" is limited to the data in the current upload plus overrides; no cross-run baselines yet.
 * Target ranges are per line item for all FCs; per-FC ranges are not yet supported.

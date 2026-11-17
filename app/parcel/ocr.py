@@ -3,7 +3,7 @@ import os
 import shutil
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw, ImageOps
 
 # Where the Windows installers (winget / UB-Mannheim) put tesseract.exe when PATH was not updated
 WINDOWS_DEFAULTS = (
@@ -110,3 +110,43 @@ def read_overlay(img: Image.Image, score_fn):
         if best[3] >= 3:
             break
     return best[0], best[1], best[2]
+
+
+def read_label(img: Image.Image, score_fn, overlay_box=None):
+    """Best-effort OCR on the parcel/label area, with the scanner overlay masked out."""
+    import pytesseract
+    from pytesseract import Output
+
+    crop = img.convert("RGB").copy()
+    if overlay_box:
+        ImageDraw.Draw(crop).rectangle(overlay_box, fill=(0, 0, 0))
+    gray = ImageOps.autocontrast(crop.convert("L"))
+    target_w = 2400
+    if gray.width < target_w:
+        scale = target_w / gray.width
+        gray = gray.resize((target_w, max(1, round(gray.height * scale))), Image.Resampling.LANCZOS)
+    arr = np.asarray(gray)
+    best_text, best_conf, best_score = "", 0.0, -1
+    for psm in (11, 6):
+        data = pytesseract.image_to_data(arr, config=f"--psm {psm}", output_type=Output.DICT)
+        lines, confs = {}, []
+        for i, word in enumerate(data["text"]):
+            word = word.strip()
+            if not word:
+                continue
+            key = (data["block_num"][i], data["par_num"][i], data["line_num"][i])
+            lines.setdefault(key, []).append((data["left"][i], word))
+            try:
+                conf = float(data["conf"][i])
+            except ValueError:
+                conf = -1
+            if conf >= 0:
+                confs.append(conf)
+        text = "\n".join(" ".join(w for _, w in sorted(words)) for _, words in sorted(lines.items()))
+        confidence = float(np.mean(confs)) if confs else 0.0
+        score = score_fn(text)
+        if score > best_score or (score == best_score and confidence > best_conf):
+            best_text, best_conf, best_score = text, confidence, score
+        if score >= 3:
+            break
+    return best_text, best_conf

@@ -1,6 +1,8 @@
-"""Document extraction for Case 2. Text-layer PDFs only (pdfplumber, streamed page by page so
-hundreds of pages are fine); wagesheet via openpyxl/csv (no pandas). No OCR - scanned PDFs are rejected with a clear message."""
+"""Document extraction for Case 2. PDFs are streamed page by page; image-only pages use local OCR.
+Wagesheets use openpyxl/csv (no pandas)."""
 import re
+import os
+import shutil
 from dataclasses import dataclass, field
 from decimal import Decimal, InvalidOperation
 
@@ -148,9 +150,44 @@ def _pages_text(path):
         raise UserInputError(f"'{getattr(path, 'name', path)}' could not be opened as a PDF "
                              f"({type(e).__name__}). It may be corrupt or password-protected.") from e
     with pdf:
-        for page in pdf.pages:
-            yield page.extract_text() or ""
+        for page_no, page in enumerate(pdf.pages, 1):
+            text = page.extract_text() or ""
+            used_ocr = False
+            if not text.strip():
+                try:
+                    image = page.to_image(resolution=300).original
+                except Exception as e:
+                    raise UserInputError(f"Scanned PDF page {page_no} could not be rendered for OCR ({type(e).__name__}).") from e
+                text = _ocr_page(image, page_no)
+                used_ocr = True
+            yield text, used_ocr
             page.flush_cache()
+
+
+def _ocr_page(image, page_no: int) -> str:
+    try:
+        import pytesseract
+    except ImportError as e:
+        raise UserInputError("This PDF appears to be scanned. Install pytesseract and the Tesseract OCR engine, "
+                             "or upload the original text-based ECR PDF.") from e
+    exe = os.getenv("TESSERACT_CMD") or shutil.which("tesseract")
+    if not exe:
+        for candidate in (
+            r"C:\Program Files\Tesseract-OCR\tesseract.exe",
+            r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe",
+            os.path.expandvars(r"%LOCALAPPDATA%\Programs\Tesseract-OCR\tesseract.exe"),
+        ):
+            if os.path.isfile(candidate):
+                exe = candidate
+                break
+    if not exe:
+        raise UserInputError("This PDF appears to be scanned, but Tesseract OCR is not installed. "
+                             "Install Tesseract or upload the original text-based ECR PDF.")
+    pytesseract.pytesseract.tesseract_cmd = exe
+    try:
+        return pytesseract.image_to_string(image, config="--psm 6")
+    except Exception as e:
+        raise UserInputError(f"OCR failed on scanned PDF page {page_no} ({type(e).__name__}).") from e
 
 
 def count_pages(path) -> int:
@@ -166,7 +203,7 @@ def parse_pf_ecr(path, on_page=None) -> EcrParse:
     out = EcrParse("PF")
     row_re = re.compile(r"^\s*(\d+)\s+(\d{10,14})\s+(.+)$")
     any_text = False
-    for pno, text in enumerate(_pages_text(path), 1):
+    for pno, (text, used_ocr) in enumerate(_pages_text(path), 1):
         out.pages = pno
         any_text |= bool(text.strip())
         if on_page:
@@ -183,9 +220,23 @@ def parse_pf_ecr(path, on_page=None) -> EcrParse:
             if not m:
                 continue
             rest = m.group(3).split()
+            ocr_ambiguous = False
+            if used_ocr and rest and rest[-1].upper() in ("O", "Q"):
+                numeric_before = 0
+                for token in reversed(rest[:-1]):
+                    if NUM_TOK.match(token):
+                        numeric_before += 1
+                    else:
+                        break
+                if numeric_before == 7:
+                    rest[-1] = "0"
+                    ocr_ambiguous = True
             nums = []
             while rest and NUM_TOK.match(rest[-1]):
                 nums.insert(0, rest.pop())
+            if used_ocr and len(nums) != 8:
+                out.unparsed.append(line.strip())
+                continue
             if len(nums) < 5 or not rest:
                 out.unparsed.append(line.strip())
                 continue
@@ -196,10 +247,11 @@ def parse_pf_ecr(path, on_page=None) -> EcrParse:
                 out.unparsed.append(line.strip())
                 continue
             out.rows.append({"sl": m.group(1), "id": m.group(2), "name": ecr_name, "repo_name": repo_name,
-                             "amount": ee, "name_ambiguous": amb, "page": pno})
+                             "amount": ee, "name_ambiguous": amb, "ocr_ambiguous": ocr_ambiguous, "page": pno})
+            if ocr_ambiguous:
+                out.warnings.append(f"PF UAN {m.group(2)}: a trailing OCR glyph was read as zero; verify this member manually.")
     if not any_text:
-        raise UserInputError("No text could be read from the PF ECR PDF. It looks like a scanned image; "
-                             "this module only reads text-based ECR PDFs (download the original from the EPFO portal).")
+        raise UserInputError("No text could be read from the PF ECR PDF. The pages may be blank or OCR could not recognize them.")
     if not out.rows:
         raise UserInputError("No member rows (Sl.No + 12-digit UAN + contributions) were found in the file given as PF ECR. "
                              "Please check that you uploaded the EPFO ECR PDF in the PF slot.")
@@ -224,7 +276,7 @@ def parse_esic_ecr(path, on_page=None) -> EcrParse:
     row_re = re.compile(r"^\s*(\d+)\s+(\S+)\s+(\d{8,17})\s+(.+?)\s+(\d{1,2})\s+(-?[\d,]+(?:\.\d+)?)\s+(-?[\d,]+(?:\.\d+)?)(?:\s+\S+)?\s*$")
     loose = re.compile(r"^\s*(\d+)\s+\S+\s+(\d{8,17})\s+")
     any_text = False
-    for pno, text in enumerate(_pages_text(path), 1):
+    for pno, (text, _) in enumerate(_pages_text(path), 1):
         out.pages = pno
         any_text |= bool(text.strip())
         if on_page:
@@ -241,8 +293,7 @@ def parse_esic_ecr(path, on_page=None) -> EcrParse:
             elif loose.match(line):
                 out.unparsed.append(line.strip())
     if not any_text:
-        raise UserInputError("No text could be read from the ESIC ECR PDF. It looks like a scanned image; "
-                             "this module only reads text-based contribution-history PDFs.")
+        raise UserInputError("No text could be read from the ESIC ECR PDF. The pages may be blank or OCR could not recognize them.")
     if not out.rows:
         raise UserInputError("No insured-person rows (IP Number, name, days, wages, contribution) were found in the file given "
                              "as ESIC ECR. Please check that you uploaded the ESIC contribution history PDF in the ESIC slot.")

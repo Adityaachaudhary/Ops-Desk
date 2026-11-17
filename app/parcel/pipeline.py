@@ -53,6 +53,40 @@ def process_image(path: Path) -> dict:
     notes = list(o.notes)
     issues = fields.plausibility_issues(o)
     parcels = sc["parcels"]
+    barcode_awbs = []
+    for value in sc.get("barcode_values", []):
+        if value.isascii() and value.isalnum() and 8 <= len(value) <= 24:
+            parsed = fields.parse_overlay(f"Barcode: {value}")
+            if parsed.awb:
+                barcode_awbs.append(parsed.awb)
+    barcode_awbs = list(dict.fromkeys(barcode_awbs))
+    if o.awb is None and len(barcode_awbs) == 1:
+        o.awb = barcode_awbs[0]
+        conf = 100.0
+        notes.append("AWB decoded from the physical shipping-label barcode")
+    elif o.awb and barcode_awbs and o.awb not in barcode_awbs:
+        o.risky.append("physical-label barcode disagrees with scanner-overlay AWB")
+
+    label_conf = None
+    if o.awb is None or o.weight_kg is None or not o.dims_complete:
+        label_text, label_conf = ocr.read_label(img, _score, box)
+        label = fields.parse_overlay(label_text)
+        recovered = False
+        for attr, label_name in (("awb", "AWB"), ("weight_kg", "weight"), ("length_cm", "length"),
+                                 ("width_cm", "width"), ("height_cm", "height")):
+            current, candidate = getattr(o, attr), getattr(label, attr)
+            if current is None and candidate is not None:
+                setattr(o, attr, candidate)
+                notes.append(f"{label_name} recovered from physical-label OCR")
+                recovered = True
+            elif current is not None and candidate is not None and current != candidate:
+                o.risky.append(f"physical-label OCR disagrees with scanner-overlay {label_name}")
+        notes.extend(label.notes)
+        o.risky.extend(label.risky)
+        if recovered:
+            conf = min(conf, label_conf) if conf > 0 else label_conf
+        if label.awb and o.awb == label.awb:
+            conf = min(conf, label_conf) if conf > 0 else label_conf
 
     status = None
     if parcels == 0:
@@ -66,12 +100,13 @@ def process_image(path: Path) -> dict:
     elif any(sc["cut"]):
         status = PARTIAL_PARCEL
         notes.append("parcel touches the frame edge (partly visible)")
-    elif sc["barcodes"] == 0 and False:  # barcode region detection is advisory only (see README limits)
-        status = BLOCKED
     if status is None:
         if o.awb is None:
             status = UNREADABLE
-            notes.append("no AWB/barcode text found in the frame's overlay (text missing, covered or too blurred)")
+            if sc["barcodes"]:
+                notes.append("barcode region detected, but its value could not be decoded; label may be covered or unreadable")
+            else:
+                notes.append("no AWB/barcode text could be read from the scanner overlay or physical label")
         elif o.risky or issues or conf < MIN_OCR_CONF:
             status = LOW_CONF
             notes += o.risky + issues
