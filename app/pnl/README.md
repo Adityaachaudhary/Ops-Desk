@@ -14,11 +14,24 @@ Tabs on the result page: **Dashboard** (latest status per FC, FC x day heat-map,
 For unattended ingestion, set `PROZO_PNL_INBOX_DIR` to a local folder before starting the app. New `.csv`, `.tsv`, `.xlsx`, and `.xlsm` files are queued after their size and modification time remain stable for two scans. Each inbox job generates the same dashboard and workbook as a manual upload; inbox jobs do not send e-mail or Slack automatically. Manual uploads are unchanged. Use one completed daily file per FC/day when the digest should represent that day's numbers.
 
 ### Delivering digests over a real channel (free options)
-No channel configured -> digests are rendered, saved to `outputs/digests/<job>/` and clearly marked **dry run** (the UI never pretends something was sent).
-* **E-mail (SMTP):** `export SMTP_HOST=smtp.gmail.com SMTP_PORT=587 SMTP_USER=you@gmail.com SMTP_PASSWORD=<gmail app password>`; manager addresses in `data/fc_managers.json`.
-* **Slack:** create a free Incoming Webhook; `export SLACK_WEBHOOK_URL=...` (or a per-FC `slack_webhook` in `fc_managers.json`).
-* Each result is stored in `fc_alerts` and shown in the Digests tab (`sent` / `dry_run` / `failed: reason`). The **Send this digest now** button sends any FC/day on demand.
-(Secrets are only read from environment variables; `.env.example` lists them; nothing is committed.)
+The P&L page's **Analyse** and **Run extended sample** actions send the latest-day digest for each FC by default when **Send each FC's digest** is checked. Uncheck it to create the job without attempting delivery. Inbox-watcher jobs never send automatically. The Digests tab can preview and manually send any FC/day.
+
+Configure credentials in the app process environment (the app does not load a `.env` file automatically; `.env.example` lists the supported variables):
+
+* **E-mail (SMTP):** set `SMTP_HOST`, `SMTP_USER`, and `SMTP_PASSWORD`. For Gmail, use `smtp.gmail.com`, port `587`, and a Gmail app password (requires 2-step verification). `SMTP_PORT` defaults to `587` and uses STARTTLS; port `465` uses SSL. `SMTP_FROM` optionally sets the sender address (defaults to `SMTP_USER`), and `SMTP_TLS=0` disables STARTTLS for providers that require it. Configure each FC manager's recipient address in `data/fc_managers.json`.
+* **Slack:** create an Incoming Webhook and set `SLACK_WEBHOOK_URL`, or configure a per-FC `slack_webhook` in `data/fc_managers.json`.
+
+On Windows PowerShell, for example:
+```powershell
+$env:SMTP_HOST = "smtp.gmail.com"
+$env:SMTP_PORT = "587"
+$env:SMTP_USER = "you@gmail.com"
+$env:SMTP_PASSWORD = "your-gmail-app-password"
+$env:SMTP_FROM = "you@gmail.com"
+```
+Set these variables before starting or restarting the app. Do not commit credentials or real manager contact details.
+
+If delivery is disabled or no channel is configured for a recipient, the digest is still rendered and saved to `outputs/digests/<job>/`, and its status is **dry run**. Each delivery attempt is recorded in `fc_alerts` and shown in the Digests tab as `sent`, `dry_run`, or `failed` with the failure reason. A successful `sent` status means the configured SMTP server or Slack webhook accepted the message; verify provider-side delivery before relying on it operationally.
 
 ## Input -> output
 Input columns (any order/spelling variant; header row auto-detected, also inside Excel with the data not starting at A1 like the provided file): `Day` or `Date`, optional `FC`, `Revenue`, `Manpower`, `Packaging`, `Power & Fuel`, `FC Rent`, `Equipment Rentals`, `Overheads`. If the workbook has a criteria tab like the provided *Ideal FC Criteria* ("25 - 27%"), those target ranges are read from it; otherwise the defaults in `config.py` (identical values) apply.
@@ -58,7 +71,7 @@ Empty file, corrupt Excel, no header, missing required column (named in the mess
 
 ## Known limitations
 * The inbox watcher is opt-in and local to one app process. It queues files, but does not manage a recurring upstream export or guarantee manager delivery. Manual uploads remain available. Automatic digest generation uses the latest day in each uploaded file; older days can be previewed/sent on demand from the Digests tab.
-* Slack/Email feature: Have to verify once with your credentials  (the Send button shows the real error if it fails).
+* SMTP/Slack delivery requires valid provider credentials and manager routing; verify delivery with your own accounts before relying on it. Failures are recorded in the Digests delivery log.
 * "Memory" is limited to the data in the current upload plus overrides; no cross-run baselines yet.
 * Target ranges are per line item for all FCs; per-FC ranges are not yet supported.
 * Insight wording is template-based - correct and consistent, but less fluent than an LLM; recommended actions are generic per line item.

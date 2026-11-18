@@ -43,7 +43,7 @@ app/
   parcel/            Case 1: fields.py (overlay text -> AWB/weight/dims), ocr.py, scene.py, pipeline.py, service.py, router.py
   compliance/        Case 2: parser.py, matcher.py, verifier.py, report.py, service.py, router.py
   pnl/               Case 3: loader.py, config.py, calculator.py, anomalies.py, insights.py, notifier.py, charts.py, datagen.py, watcher.py, service.py, router.py
-  web/               templates/ + static/ (one stylesheet, ~80 lines of JS)
+  web/               templates/ + static/ (one stylesheet, ~115 lines of JS)
 data/sample/         provided samples (case1 subset, case2, case3) + the extended Case 3 sample
 outputs/sample_outputs/  what the system produced from those samples (CSV / XLSX / digests)
 tests/               pytest suite + synthetic scale-test generator
@@ -58,7 +58,7 @@ Database: `data/prozo.db` (created on first run). Tables: `jobs`, `job_events`, 
 4. Every record keeps traceability (file name / source row / reason text) so a reviewer can see *why* it was flagged.
 
 ## Honest overall limitations
-See each module's README. In short: Case 1 is a heuristic OCR + OpenCV system with measured (not perfect) accuracy; Case 2 parses text-layer PDFs and uses local Tesseract OCR for image-only pages; Case 3 supports an opt-in local inbox watcher. Email/Slack delivery remains unverified and out of scope for this implementation pass. The web UI was tested through the API test client and rendered-HTML checks, not manually in every browser.
+See each module's README. In short: Case 1 is a heuristic OCR + OpenCV system with measured (not perfect) accuracy; Case 2 parses text-layer PDFs and uses local Tesseract OCR for image-only pages; Case 3 supports an opt-in local inbox watcher and digest delivery over configured SMTP and/or Slack channels. Configure and verify your own delivery credentials before relying on notifications. The web UI was tested through the API test client and rendered-HTML checks, not manually in every browser.
 
 
 ## Windows notes
