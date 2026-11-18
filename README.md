@@ -8,6 +8,8 @@ One small web app, three independent automations. Each case has its **own README
 | 2 - Wagesheet vs PF/ESIC ECR compliance | `app/compliance/` | [`app/compliance/README.md`](app/compliance/README.md) |
 | 3 - Daily FC P&L monitor & alert digest | `app/pnl/` | [`app/pnl/README.md`](app/pnl/README.md) |
 
+For the full application design, request lifecycle, persistence model, integrations, and per-case processing flows, see [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+
 ## Run it (about 10 minutes, free, no API keys)
 ```bash
 git clone <repo> && cd prozo-agentic-ai
@@ -19,7 +21,7 @@ pip install -r requirements.txt                             # everything incl. C
 uvicorn app.main:app --port 8000                            # or ./run.sh  /  run.bat
 ```
 Open **http://localhost:8000**. Every module has a **"Run sample"** button, so a reviewer sees results in one click, and each module accepts your own files.
-Tests: `pytest` (45 tests: field parsing, parcel/OCR fallbacks, compliance matching and scanned-PDF OCR, P&L rules and inbox watching, a 1,500-employee multi-page ECR scale test, and API end-to-end with bad inputs).
+Tests: `python -m pytest` (45 collected tests covering field parsing, parcel/OCR fallbacks, compliance matching and scanned-PDF OCR, P&L rules and inbox watching, a 1,500-employee multi-page ECR scale test, and API end-to-end with bad inputs).
 
 ## What the brief's "common requirements" map to
 | Requirement | Where / how |
@@ -28,28 +30,28 @@ Tests: `pytest` (45 tests: field parsing, parcel/OCR fallbacks, compliance match
 | Large batch must not freeze the screen; leave and come back | Upload only saves files + creates a **job row** and returns at once. A SQLite-backed worker (`app/core/jobs.py`) processes it; the page polls progress. Jobs and results persist, are listed under *All jobs*, and **survive page reloads and server restarts** (interrupted jobs are re-queued on start). Failed jobs have a Retry button. |
 | Bad input -> clear message, no crash | Validation at upload (empty, wrong type, corrupt, wrong slot) and inside jobs (`UserInputError` -> readable text). Unhandled errors render an error page, are logged, and never kill the worker thread. Each module has a "Bad input" section in its README, and `tests/test_api.py` checks it. |
 | Separate or combined app | **Combined**, with hard module boundaries (below). |
-| No secrets in repo; free path | Only environment variables (`.env.example` lists them; all optional). No paid API is needed anywhere. |
+| No secrets in repo; optional integrations | Credentials are read from process environment variables; `.env.example` documents example values but is not loaded automatically. Sample workflows run without external API keys. |
 
 ## Isolation between the modules
-* Each module lives in its own package and exposes only `router`, `CASE_TYPE` and `handle`. `app/main.py` imports them one by one inside `try/except`; a module that fails to import shows as **disabled** in the sidebar and the other two keep working.
-* **OCR remains lazy and optional.** Case 1 uses Tesseract; Case 2 uses it only for image-only PDF pages. Case 3 does not use OCR. Text-based ECR PDFs and the other modules keep working without the Tesseract OS binary.
+* Each module lives in its own package and provides a router, a `CASE_TYPE`, and a `handle(job, ctx)` worker function. `app/main.py` imports them one by one inside `try/except`; a module that fails to import shows as **disabled** in the sidebar and the other successfully imported modules keep working.
+* **OCR remains lazy.** Case 1 uses Tesseract; Case 2 uses it only for image-only PDF pages. Case 3 does not use OCR. Text-based ECR PDFs and the other modules keep working without the Tesseract OS binary.
 * The shared core (`app/core/`) provides configuration, SQLite persistence, the job queue and upload validation; case-specific processing stays in each module package. The common core is covered by API tests.
 
 ## Layout
 ```
 app/
   main.py            app wiring, module registration, error pages, /api/jobs
-  core/              config, db (SQLite), jobs (persistent queue + worker), web (templates)
-  parcel/            Case 1: fields.py (overlay text -> AWB/weight/dims), ocr.py, scene.py, pipeline.py, service.py, router.py
-  compliance/        Case 2: parser.py, matcher.py, verifier.py, report.py, service.py, router.py
-  pnl/               Case 3: loader.py, config.py, calculator.py, anomalies.py, insights.py, notifier.py, charts.py, datagen.py, watcher.py, service.py, router.py
-  web/               templates/ + static/ (one stylesheet, ~115 lines of JS)
+  core/              config, db (SQLite), jobs, web rendering, tabular readers, OCR compatibility import
+  parcel/            Case 1: overlay parsing, OCR, scene checks, batch consistency, service and routes
+  compliance/        Case 2: wagesheet/ECR parsing, matching, verification, reports and routes
+  pnl/               Case 3: loading, P&L rules, anomalies, insights, digest delivery, inbox watcher and routes
+  web/               Jinja2 templates + static CSS/JavaScript
 data/sample/         provided samples (case1 subset, case2, case3) + the extended Case 3 sample
 outputs/sample_outputs/  what the system produced from those samples (CSV / XLSX / digests)
 tests/               pytest suite + synthetic scale-test generator
 docs/                architecture notes and a demo/live-review cheat sheet
 ```
-Database: `data/prozo.db` (created on first run). Tables: `jobs`, `job_events`, `parcel_results`, `compliance_results`, `fc_daily_records`, `fc_anomalies`, `fc_alerts`, `pnl_inbox_seen`, `overrides`, `audit_logs`.
+Database: `data/prozo.db` (created on first run). Tables: `jobs`, `job_events`, `parcel_results`, `compliance_results`, `fc_daily_records`, `fc_anomalies`, `fc_alerts`, `pnl_inbox_seen`, `overrides`, `audit_logs`. The application architecture and table responsibilities are described in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ## Principles I held to
 1. Never fabricate extracted data; a wrong value is worse than an honest flag.
@@ -58,7 +60,7 @@ Database: `data/prozo.db` (created on first run). Tables: `jobs`, `job_events`, 
 4. Every record keeps traceability (file name / source row / reason text) so a reviewer can see *why* it was flagged.
 
 ## Honest overall limitations
-See each module's README. In short: Case 1 is a heuristic OCR + OpenCV system with measured (not perfect) accuracy; Case 2 parses text-layer PDFs and uses local Tesseract OCR for image-only pages; Case 3 supports an opt-in local inbox watcher and digest delivery over configured SMTP and/or Slack channels. Configure and verify your own delivery credentials before relying on notifications. The web UI was tested through the API test client and rendered-HTML checks, not manually in every browser.
+See each module's README. In short: Case 1 is a heuristic OCR + OpenCV system with measured (not perfect) accuracy; Case 2 parses text-layer PDFs and uses local Tesseract OCR for image-only pages; Case 3 supports an opt-in local inbox watcher and digest delivery over configured SMTP and/or Slack channels. Configure and verify your own delivery credentials before relying on notifications. The app has no built-in authentication, so run it only in a trusted environment. The web UI was tested through the API test client and rendered-HTML checks, not manually in every browser.
 
 
 ## Windows notes
