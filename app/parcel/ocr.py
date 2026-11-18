@@ -1,9 +1,12 @@
 """Tesseract access for Case 1 ONLY. Imported lazily so the other modules never need it."""
 import os
 import shutil
+import subprocess
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageOps
+
+from ..core.ocr_compat import pytesseract_module
 
 # Where the Windows installers (winget / UB-Mannheim) put tesseract.exe when PATH was not updated
 WINDOWS_DEFAULTS = (
@@ -32,10 +35,6 @@ def find_tesseract() -> str | None:
 
 
 def ensure_ocr():
-    try:
-        import pytesseract
-    except ImportError as e:
-        raise OcrUnavailable("pytesseract is not installed (pip install pytesseract).") from e
     exe = find_tesseract()
     if exe is None:
         raise OcrUnavailable(
@@ -44,7 +43,13 @@ def ensure_ocr():
             "If it is installed in a custom folder, set the TESSERACT_CMD environment variable to the full path of tesseract.exe. "
             "The Compliance and P&L modules work without it."
         )
-    pytesseract.pytesseract.tesseract_cmd = exe
+    try:
+        subprocess.run([exe, "--version"], capture_output=True, timeout=10, check=True)
+        with pytesseract_module() as pytesseract:
+            pytesseract.pytesseract.tesseract_cmd = exe
+    except (ImportError, subprocess.SubprocessError, OSError) as e:
+        raise OcrUnavailable("pytesseract could not use the installed Tesseract executable "
+                             "(pip install pytesseract and verify Tesseract is working).") from e
 
 
 def _prep(crop: Image.Image, target_w: int, mode: str) -> np.ndarray:
@@ -71,6 +76,8 @@ ATTEMPTS = [("otsu", 1400), ("otsu", 2600), ("adaptive", 2000), ("otsu", 3800)]
 def read_overlay(img: Image.Image, score_fn):
     """OCR the top-left overlay block. Tries several preprocessing variants and keeps the best parse.
     score_fn(text) -> int (number of fields found, 3 = complete). Returns (text, mean_conf, text_box_px)."""
+    with pytesseract_module():
+        pass
     import pytesseract
     from pytesseract import Output
 
@@ -114,6 +121,8 @@ def read_overlay(img: Image.Image, score_fn):
 
 def read_label(img: Image.Image, score_fn, overlay_box=None):
     """Best-effort OCR on the parcel/label area, with the scanner overlay masked out."""
+    with pytesseract_module():
+        pass
     import pytesseract
     from pytesseract import Output
 

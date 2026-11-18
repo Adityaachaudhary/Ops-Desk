@@ -4,7 +4,13 @@ from decimal import Decimal
 
 import pytest
 
-pytest.importorskip("pytesseract")
+from app.core.ocr_compat import pytesseract_module
+
+try:
+    with pytesseract_module():
+        pass
+except ImportError:
+    pytest.skip("pytesseract is not installed", allow_module_level=True)
 pytest.importorskip("pypdfium2")
 from fpdf import FPDF
 from PIL import Image

@@ -165,8 +165,10 @@ def _pages_text(path):
 
 
 def _ocr_page(image, page_no: int) -> str:
+    from ..core.ocr_compat import pytesseract_module
     try:
-        import pytesseract
+        with pytesseract_module() as pytesseract:
+            pass
     except ImportError as e:
         raise UserInputError("This PDF appears to be scanned. Install pytesseract and the Tesseract OCR engine, "
                              "or upload the original text-based ECR PDF.") from e
