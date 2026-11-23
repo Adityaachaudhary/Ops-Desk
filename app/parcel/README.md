@@ -74,8 +74,6 @@ Notes: scene verdicts are only hard-applied as scene categories when confident/a
 - Historical sample output: [outputs/sample_outputs/parcel_provided_dataset_results.csv](../../outputs/sample_outputs/parcel_provided_dataset_results.csv)
 - Summary recorded previously for that run (`data/parcel_samples/`, 65 images): SUCCESS 39, PARTIAL_EXTRACTION 4, LABEL_UNREADABLE 6, NO_PARCEL 7, MULTIPLE_PARCELS 4, PARTIAL_PARCEL 3, LOW_CONFIDENCE 2; AWB 43/65, weight 52/65, dimensions 42/65, review queue 26/65.
 
-### Earlier 262-frame provided dataset snapshot (documented in previous revision)
-A previous README revision reported measured results on 262 frames (one CPU core, thresholds adjusted while inspecting that dataset, so optimistic for unseen images) with full per-image output referenced as `outputs/sample_outputs/parcel_provided_dataset_results.csv` at that time. Reported status counts were: SUCCESS 108, PARTIAL_EXTRACTION 19, LOW_CONFIDENCE 72, LABEL_UNREADABLE 7, NO_PARCEL 30, MULTIPLE_PARCELS 18, PARTIAL_PARCEL 10. If that exact CSV is not present in this workspace state, treat these counts as historical documentation only and regenerate by rerunning the corresponding dataset with the current code.
 
 ## Known limitations (honest)
 - **Heuristic scene detection, not a trained model.** Parcel presence/count/occlusion is inferred from OpenCV heuristics and fused with scanner-measured fields. This can still misclassify on unseen lighting, camera angles, backgrounds, motion blur, layouts, or tightly packed/occluded parcels. Low-confidence/unanalysable cases are surfaced for review, but perfect automatic bifurcation for arbitrary images is not guaranteed.
