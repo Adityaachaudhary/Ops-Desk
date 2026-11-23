@@ -65,5 +65,4 @@ See each module's README. In short: Case 1 is a heuristic OCR (RapidOCR/Tesserac
 
 ## Windows notes
 * Use Python 3.10-3.12 (tested on 3.12). Very new Python versions may lack prebuilt wheels for some libraries.
-* Do not keep the project folder inside OneDrive (sync can lock the SQLite database); use e.g. `C:\prozo`.
 * Case 1 overlay OCR can work via RapidOCR (installed by `requirements.txt`) when its runtime/models are available; install Tesseract separately if you need Case 1 physical-label OCR fallback or scanned/image-only Case 2 PDF OCR. Tesseract is a normal Windows program, not a pip package: install it once, then restart VS Code / the terminal so PATH refreshes (or set `TESSERACT_CMD`).
