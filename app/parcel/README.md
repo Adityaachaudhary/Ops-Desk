@@ -1,73 +1,120 @@
-# Case Study 1 - Parcel Images -> Shipment Data
+﻿# Case Study 1 - Parcel Images -> Shipment Data
 
-Warehouse operators upload scanner frames in bulk (hundreds at a time, JPG/PNG or a ZIP of them). For **every image** the system produces one record - AWB/tracking number, weight, dimensions (whichever are present) - and an **honest status flag** whenever a clean read is not possible. The whole batch downloads as one CSV.
+Warehouse operators upload scanner frames in bulk (JPG/PNG or a ZIP). For **every image** the system produces one record (AWB/tracking number, weight, dimensions where present, scene/review metadata, and an **honest status flag**) and the whole batch downloads as one CSV. Images the system is not sure about are **flagged for review, never guessed**.
 
-## Run it (under 15 minutes, free, offline)
+## Run it
 ```bash
-python3 -m venv .venv && . .venv/bin/activate
-pip install -r requirements.txt
-# Tesseract OCR engine (also used for scanned Case 2 PDFs; Case 3 does not use it):
-#   Ubuntu/Debian: sudo apt install tesseract-ocr     macOS: brew install tesseract
-#   Windows: install the UB-Mannheim build and add it to PATH
-uvicorn app.main:app --port 8000          # open http://localhost:8000/parcel
+python3 -m venv .venv && . .venv/bin/activate              # Windows: .venv\Scripts\activate
+pip install -r requirements.txt                             # includes rapidocr-onnxruntime, opencv-python-headless, numpy, etc.
+# Optional but recommended for some cases: install the Tesseract OCR engine (OS binary)
+#   Ubuntu/Debian: sudo apt install tesseract-ocr
+#   macOS:         brew install tesseract
+#   Windows:       winget install UB-Mannheim.TesseractOCR  (or the UB-Mannheim installer),
+#                  add `C:\Program Files\Tesseract-OCR` to PATH, then restart the terminal/VS Code
+# If installed in a custom location: set TESSERACT_CMD=/full/path/to/tesseract(.exe)
+uvicorn app.main:app --port 8000
 ```
-Click **Run sample batch** (27 frames in `data/sample/case1/`, mostly the edge cases) or drag in your own images/ZIP. No API key, no network, no GPU. If Tesseract is missing the page explains how to install it. Text-based Case 2 PDFs and Case 3 remain available without Tesseract; image-only Case 2 pages need it.
-Speed: roughly **1.5-2 s per frame on one CPU core** (the full 262-frame set took ~6 minutes). On a multi-core machine set `PROZO_PARCEL_THREADS=4` (or more). Jobs run in the background; close the tab and come back via *All jobs*.
+Open **http://localhost:8000/parcel**. Click **Run sample batch** (if sample images are bundled in this copy) or upload your own JPG/PNG/ZIP. Jobs run in the background; the page refreshes and the CSV is downloadable from the job screen.
 
-## What the data actually looks like (and why the design follows)
-I opened the provided frames before designing. Every frame is a conveyor/scanner capture with a **machine-printed text block in the top-left corner** (the scanner's own record: AWB/barcode value, dimensions, weight, time), and the parcel itself photographed below it. The physical shipping label is a few dozen pixels wide in these frames - not reliably readable by any free OCR - while the overlay text is. So the pipeline reads the overlay as the primary source of AWB / weight / dimensions and uses the picture only for scene checks. There are at least **seven overlay templates** (yellow `AWB No/Length/Width/Height/Weight`, white `Barcode/Dimension:L0213XH0148XW0178/Weight:01190`, `Dimension(LxBxH): 15.5x11.1x7.7 cm`, `L * W * H: 0190 * 0369 * 1040`, green `Dim(L/W/H):0579/0428/0333mm`, `AWB_NO_ :` / `LENGTH(cm) :` ...) with different units (cm, mm, grams, kg, unit missing, zero-padded). Frames also include colour CCTV-style shots and frames with no shipment data at all.
+**OCR engines and availability:**
+- Scanner-overlay text is read primarily with **RapidOCR** (`rapidocr-onnxruntime`, models bundled in the Python package) using multiple passes/regions and merged results.
+- If RapidOCR is unavailable or does not recover all three overlay fields (AWB, weight, dimensions), the pipeline tries **Tesseract** overlay OCR as a fallback when the Tesseract binary is available.
+- Best-effort **physical-label OCR fallback** (`ocr.read_label`, overlay masked out) currently runs only when Tesseract is available and may recover missing fields or flag disagreements.
+- `ensure_ocr()` allows Case 1 to run with RapidOCR alone or with Tesseract; the upload UI blocks and shows install guidance only if neither a working RapidOCR engine nor a Tesseract binary is available. Installing Tesseract is still recommended for physical-label OCR fallback and is required for scanned/image-only Case 2 PDF OCR.
+- OCR/model loading is lazy; Case 1 is isolated from Case 2/3 at import/runtime boundaries as described in the root README.
 
-## Pipeline (`pipeline.py`)
-1. **Validate** - file opens as an image and is not tiny/corrupt, else `INVALID_IMAGE` (record kept, batch continues).
-2. **OCR the overlay block** (`ocr.py`) - crop top-left, bright-text-friendly preprocessing (max-channel so yellow/green/white text all survive), up-scale/threshold, Tesseract `--psm 6`; up to four preprocessing variants are tried and the parse that yields the most fields wins (most frames finish on the first try).
-3. **Parse fields** (`fields.py`, pure Python, unit-tested) - one tolerant regex family per template, unit inference (mm -> cm, g -> kg), `Barcode:41306503_19109110324251` -> long numeric part, junk after commas/symbols cut, trailing OCR noise glued to an AWB dropped **and flagged**, scanner placeholders such as `2DNOREAD` rejected, zero dimensions (`0000*0000*0000`) reported as *not available*, never as a value.
-4. **Scene check** (`scene.py`, OpenCV only, no model weights) - blank the text block, find parcel-like blobs (brightness + texture, morphology, thin belt-edge bands rejected): 0 blobs -> `NO_PARCEL`; several comparable blobs -> `MULTIPLE_PARCELS`; one blob hugging the frame edge over a long span -> `PARTIAL_PARCEL`.
-5. **Physical-label fallback** - if overlay fields are missing, try local OCR on the image with the detected overlay masked; decode a visible barcode when OpenCV can read it. Conflicting values are retained as review flags, not silently substituted.
-6. **Validate and decide** - plausibility (weight 5 g - 100 kg, each side 0.5 - 300 cm, L*W*H vs printed volume), OCR confidence, digit-glyph ambiguity. `I/l/S/B` read as digits makes the record *risky*; `@/O/Q -> 0` (the monospace template's dotted zero) is accepted and noted.
-7. **Batch cross-check** (`consistency.py`) - an AWB whose length differs from its siblings with the same 4-digit prefix, or whose prefix is one digit away from a much more common prefix, is downgraded to `LOW_CONFIDENCE` (a dropped/added/misread digit is the commonest OCR failure). It never edits a value.
+Speed/scale notes: OCR is CPU-bound (roughly seconds per frame depending on machine/image). Images in a batch are processed in parallel (`PROZO_PARCEL_THREADS`, default 2). Jobs run in the background; results are persisted per job.
 
-## Status taxonomy
+## What the data looks like (design implications)
+Scanner/warehouse frames commonly include a machine-printed overlay block (AWB/barcode value, weight, dimensions, time) and the parcel below it. Overlay text is often more readable than the physical shipping label in low-resolution/oblique photos, so the pipeline treats the overlay as the primary source and uses the picture for scene checks plus best-effort label/barcode recovery when needed. Overlay layouts, units, colours, and camera styles vary (e.g. different key names/positions, cm/mm/kg/g or missing units, padded values, panel/white layouts, colour CCTV-like frames, and frames with no shipment data).
+
+## Pipeline (`app/parcel/pipeline.py`, per image)
+1. **Validate** - load with `PIL.Image.open(...).load()` and reject unreadable/corrupt/tiny images -> `INVALID_IMAGE` (row kept, batch continues).
+2. **OCR the scanner overlay** (`ocr.py`) - RapidOCR-first multi-pass overlay reading: top-left block, colour-isolated text pass, native-resolution crop around detected text, and whole-image enlarged pass for alternate layouts. Pass text is merged so a field found by any pass counts. If all three fields are not recovered, Tesseract overlay OCR fallback is attempted when available (multiple preprocessing/scale/threshold variants, `--psm 6`). Returns merged text, OCR confidence, and overlay box.
+3. **Parse fields** (`fields.py`, strict/template-tolerant, no guessing) - parses AWB/weight/dimensions from overlay text with normalization for common OCR/layout variants (e.g. label prefix fixes like `PROC N0.`/`AWB N0.` where safe, repeated barcode collapse only when identical, `AWB No.`/`Barcode`/`Barc0de`-style keys, weight/dimension values placed away from labels, and panel formats such as `A.W` / `L/W/H`). Units/inference/cleanup are applied where supported by the parser; ambiguity/risky OCR cases are flagged (e.g. `0/O`, `1/I/l`, `5/S`) rather than guessed. Implausible values are flagged by plausibility checks.
+4. **Scene check** (`scene.py`, plain OpenCV, no model weights) - segment parcel-like components after suppressing overlay-text artifacts; uses belt/background contrast, morphology, edge/texture/busy-region filtering, and an edge-rescue pass for low-contrast/dark objects. Produces `verdict` (`OK`, `NO_PARCEL`, `MULTIPLE_PARCELS`, `PARTIAL_PARCEL`, `UNSURE`), `scene_conf`, `scene_reason`, parcel/component counts, and barcode detections/values when found.
+5. **Barcode/label recovery and cross-checks** (`pipeline.py`, `ocr.py`) - if overlay AWB is missing and a single physical-label barcode decodes clearly to a valid AWB, the AWB may be recovered from the barcode. If overlay fields are missing, physical-label OCR fallback (Tesseract when available, overlay masked) may recover AWB/weight/dimensions; recovered fields are noted and overlay-vs-label disagreements are flagged for review.
+6. **Fuse scene with scanner evidence** (`scene.fuse`, `pipeline.py`) - combines picture verdict with scanner-measured evidence (weight and dimensions). This avoids some hard mis-bucketing: for example, confident `NO_PARCEL` is downgraded to `UNSURE` when the scanner reported both weight and dimensions (except truncated line-scan handling), and low-confidence/unanalysable-layout scene verdicts can become `UNSURE`. `UNSURE` does not force a wrong scene bucket; the final status is decided from readable fields/quality while scene uncertainty remains visible.
+7. **Status, confidence, and review reason** (`pipeline.py`) - applies status rules, plausibility/risk/OCR-confidence checks, and records `needs_review`, `confidence`, `scene_status`, `scene_confidence`, `review_reason`, and `notes`. Extracted fields are preserved even when the row needs review.
+8. **Batch consistency checks** (`consistency.py`) - a separate pass over completed rows downgrades some `SUCCESS`/`PARTIAL_EXTRACTION` rows to `LOW_CONFIDENCE` when an AWB looks inconsistent with siblings (e.g. length differs from the dominant length in a sufficiently large same-prefix group, or a prefix is one digit away from a much more common prefix). It adds `review_reason`/notes and never invents or edits values.
+9. **Persist & export** (`service.py`) - store rows in SQLite (`parcel_results`) and write `outputs/parcel_job_<id>.csv`.
+
+## Status taxonomy (current implementation)
 | Status | Meaning |
 |---|---|
-| `SUCCESS` | AWB, weight and dimensions read; nothing suspicious |
-| `PARTIAL_EXTRACTION` | AWB read, weight and/or dimensions missing - **the fields that were read are kept**, `notes` says what is missing |
-| `LOW_CONFIDENCE` | Fields read but OCR confidence, digit ambiguity, odd AWB length/prefix or an implausible value says *verify* |
-| `LABEL_UNREADABLE` | No AWB could be read (text absent, covered, blurred, or the scanner itself printed `NOREAD`) |
-| `NO_PARCEL` / `MULTIPLE_PARCELS` / `PARTIAL_PARCEL` | Scene problems. Any fields that were read are still shown but the status forces a human look (with several parcels the overlay cannot be tied to one) |
-| `INVALID_IMAGE` | Corrupt/unreadable file or processing error |
-`LABEL_BLOCKED` is reserved for a future reliable occlusion detector; currently such cases are flagged as `LABEL_UNREADABLE` rather than guessed. Output CSV columns: `filename, awb, weight_kg, length_cm, width_cm, height_cm, dimensions, status, needs_review, confidence, parcels_detected, notes`.
+| `SUCCESS` | AWB, weight, and dimensions read; no ambiguity/plausibility/low-confidence/review-triggering issue. |
+| `PARTIAL_EXTRACTION` | AWB read, but weight and/or dimensions missing. Fields that were read are kept. |
+| `LOW_CONFIDENCE` | Fields read but need verification (low OCR confidence, digit/OCR ambiguity, overlay-vs-label or barcode disagreement, implausible values, or batch consistency anomaly). |
+| `LABEL_UNREADABLE` | No AWB could be read from scanner overlay or physical-label OCR fallback. |
+| `NO_PARCEL` | Scene analysis confidently indicates no parcel-like object in frame (subject to fusion rules with scanner evidence). |
+| `MULTIPLE_PARCELS` | Scene analysis confidently indicates more than one parcel-like object; overlay data cannot be safely attributed to one parcel. |
+| `PARTIAL_PARCEL` | Scene analysis confidently indicates the parcel is cut off at a frame edge. |
+| `LABEL_BLOCKED` | Defined by the contract but **not emitted** by the current heuristic implementation. |
+| `INVALID_IMAGE` | File could not be decoded/read or is too small. |
 
-## Results on the provided dataset (262 frames, one CPU core, no tuning on a held-out set - see caveat)
-Full per-image output: `outputs/sample_outputs/parcel_provided_dataset_results.csv`.
+Notes: scene verdicts are only hard-applied as scene categories when confident/allowed by fusion; `UNSURE` scene cases remain reviewable with scene metadata and data-quality-driven status. `needs_review` is `1` for every status except `SUCCESS`.
 
-| Status | Count |
-|---|---|
-| `SUCCESS` | 108 |
-| `PARTIAL_EXTRACTION` | 19 |
-| `LOW_CONFIDENCE` | 72 |
-| `LABEL_UNREADABLE` | 7 |
-| `NO_PARCEL` | 30 |
-| `MULTIPLE_PARCELS` | 18 |
-| `PARTIAL_PARCEL` | 10 |
+## Output columns (CSV)
+`filename, awb, weight_kg, length_cm, width_cm, height_cm, dimensions, status, needs_review, confidence, parcels_detected, scene_status, scene_confidence, review_reason, notes`
 
-* AWB read on **249 / 262**, weight on **201**, full dimensions on **240**.
-* **Ground truth I could verify without hand-labelling:** 157 frames have the AWB in their file name (`weight_image_<AWB>_...`, `<AWB>-<timestamp>`). Exact AWB match: **138 / 157 (88%)**. Of the 65 of these frames marked `SUCCESS`, **0 had a wrong AWB** (before the batch cross-check was added it was 5; the wrong reads are now caught as `LOW_CONFIDENCE` or flagged). The remaining misses are one digit off (e.g. `0` read as `6`) and are mostly flagged `LOW_CONFIDENCE`.
-* **Scene flags are the weakest part.** I spot-checked 24 flagged frames by eye (8 per flag): `NO_PARCEL` was right for the large majority (empty belt), `MULTIPLE_PARCELS` and `PARTIAL_PARCEL` had many false alarms before I raised the thresholds; after tightening they fire on ~22% of frames. The frames named after a scene edge case behave as follows: `No Shipment packet captured` -> NO_PARCEL (correct); `Multiple shipment packets...` -> MULTIPLE_PARCELS (correct); `Half shipment captured` -> flagged (as NO_PARCEL rather than PARTIAL_PARCEL - wrong reason, right outcome: not `SUCCESS`); `No Shipment ccaptured` -> flagged; `multiple_shipment_jpeg` -> missed as multiple; `Image with worker hand on it` -> read normally (hand not detected). `LOW_CONFIDENCE` is a large bucket (about a quarter of frames) on purpose: digit ambiguity, a trailing-noise AWB or an out-of-pattern length is cheaper for a person to confirm than a wrong AWB is to find later. Caveat: the thresholds were adjusted while looking at this same dataset, so these numbers are optimistic for unseen images.
+- `scene_status` / `scene_confidence`: fused scene verdict and confidence (diagnostic).
+- `review_reason`: primary reason(s) a non-success row needs review (also reflected in notes for many cases).
+- `confidence`: OCR-derived confidence, reduced when ambiguity/plausibility flags apply.
+- Fields that were read are preserved even on non-success statuses.
 
-## Bad input
-Nothing selected, empty file (0 bytes), unsupported extension, non-image bytes renamed `.jpg`, corrupt ZIP, ZIP with no images, > 1000 files, > 60 MB per file: clear message on the upload page, no job created. A single bad image inside a batch becomes an `INVALID_IMAGE` row; the batch completes (`completed with errors` only if a frame crashed the pipeline). Missing Tesseract -> install instructions, module disabled, rest of the app fine.
+## Bad input and isolation
+- No files, empty files, unsupported extensions, non-image bytes renamed as images, corrupt ZIPs, ZIPs with no images, and upload/size limits are rejected or surfaced as clear errors by the core upload/job flow.
+- A bad image inside a batch becomes an `INVALID_IMAGE` row; the batch can continue and complete with recorded errors as applicable.
+- OCR engines are loaded lazily and Case 1 is isolated so other modules can remain available when OCR dependencies are missing or Case 1 fails to initialize.
 
-## Known limitations (honest list)
-* Overlay remains the primary source because the provided labels are small and often oblique. The physical-label OCR/barcode pass is a best-effort fallback; low-resolution or rotated labels can still be unreadable. In those cases the record is flagged rather than guessed.
-* **Digit errors can still pass** (`0` vs `6`, or any same-length slip) when nothing in the batch contradicts them - hence measured, not perfect, accuracy. Weight/dimension digits have no cross-check beyond plausibility and the printed volume.
-* A detected-but-undecodable barcode is reported as `LABEL_UNREADABLE` with a note that the barcode may be covered or unreadable. The system does not claim `LABEL_BLOCKED` without reliable evidence distinguishing a covered label from blur or low resolution.
-* **Scene flags are heuristics** with both false alarms and misses (above). They are deliberately conservative toward "needs a look".
-* Units without a label are *inferred* (`01190` -> 1.19 kg; four-digit padded dimensions -> mm) and the inference is written in `notes`.
-* Tesseract speed on one core is ~1.5-2 s/frame; accuracy drops on very small text (the Ekart-style frames) even with up-scaling.
-* No dedupe: the same AWB in two frames yields two rows.
+## Results on the provided datasets (historical snapshots)
+**Important:** results below are historical measurements from earlier runs and specific datasets/environments. Because OCR, scene detection, fusion, and review logic have changed, rerun batches with the current code and use the generated job CSV/UI as the source of truth for current behavior.
+
+### Bundled parcel sample snapshot
+- Historical sample output: [outputs/sample_outputs/parcel_provided_dataset_results.csv](../../outputs/sample_outputs/parcel_provided_dataset_results.csv)
+- Summary recorded previously for that run (`data/parcel_samples/`, 65 images): SUCCESS 39, PARTIAL_EXTRACTION 4, LABEL_UNREADABLE 6, NO_PARCEL 7, MULTIPLE_PARCELS 4, PARTIAL_PARCEL 3, LOW_CONFIDENCE 2; AWB 43/65, weight 52/65, dimensions 42/65, review queue 26/65.
+
+### Earlier 262-frame provided dataset snapshot (documented in previous revision)
+A previous README revision reported measured results on 262 frames (one CPU core, thresholds adjusted while inspecting that dataset, so optimistic for unseen images) with full per-image output referenced as `outputs/sample_outputs/parcel_provided_dataset_results.csv` at that time. Reported status counts were: SUCCESS 108, PARTIAL_EXTRACTION 19, LOW_CONFIDENCE 72, LABEL_UNREADABLE 7, NO_PARCEL 30, MULTIPLE_PARCELS 18, PARTIAL_PARCEL 10. If that exact CSV is not present in this workspace state, treat these counts as historical documentation only and regenerate by rerunning the corresponding dataset with the current code.
+
+## Known limitations (honest)
+- **Heuristic scene detection, not a trained model.** Parcel presence/count/occlusion is inferred from OpenCV heuristics and fused with scanner-measured fields. This can still misclassify on unseen lighting, camera angles, backgrounds, motion blur, layouts, or tightly packed/occluded parcels. Low-confidence/unanalysable cases are surfaced for review, but perfect automatic bifurcation for arbitrary images is not guaranteed.
+- **No learned label/box localization.** `LABEL_BLOCKED` is not emitted; label coverage/occlusion cannot be asserted reliably.
+- **Layout and OCR dependence.** Multiple overlay formats are supported, but unseen scanner UI/layout changes can break parsing. OCR quality depends on image quality and available engines (RapidOCR bundled; Tesseract optional fallback/label OCR). Some text remains unreadable and is correctly flagged rather than guessed.
+- **Ambiguity can remain.** Same-length digit slips or ambiguous reads may pass when evidence does not contradict them; batch checks catch some patterns but not all.
+- **Single-image processing.** No cross-image parcel tracking/deduplication beyond batch-level checks such as duplicate AWB flagging.
+- **UI validation scope.** Routes/services are covered by tests, but rendered UI behavior was not manually browser-tested in every environment.
+- **Operations/scale.** CPU-bound OCR with in-process workers and local SQLite is suitable for moderate/demo workloads; very large backlogs or production use would need stronger queueing, observability, and deployment hardening.
 
 ## With more time
-Improve the physical-label crop and add dedicated QR decoding/cross-checking beyond the current OpenCV barcode fallback; a small learned classifier (or YOLO) for parcel count / partial / hand-on-label trained on the provided named edge cases; per-template OCR with whitelists (digits only) to remove glyph ambiguity; hand-labelled evaluation set + confusion matrix; review UI to correct a value and re-export; checksum/length rules per courier; GPU/parallel OCR and a Celery worker for very large batches.
+- Add a trained detector/classifier for parcel presence/count/partial/label-occlusion and evaluate on a diverse labeled dataset.
+- Add layout/text-region detection and per-template parsing/OCR strategies for unseen scanner overlays.
+- Strengthen physical-label localization/decoding (including QR/courier-specific checks) and cross-validate overlay vs label with calibrated confidence.
+- Build a review UI for human correction/re-export and track accuracy/confusion metrics over time.
+- Improve throughput/operations (queue workers, streaming progress, resumable batches, deployment-grade storage/auth).
 
 ## Where things live
-`fields.py` (templates -> values) - `ocr.py` (Tesseract, lazy) - `scene.py` (OpenCV) - `pipeline.py` (statuses) - `consistency.py` (batch checks) - `service.py` (job handler, ZIP expansion, CSV) - `router.py` (pages, thumbnails). Tests: `tests/test_parcel_fields.py`, `tests/test_parcel_consistency.py`.
+```
+app/parcel/
+  ocr.py          RapidOCR-first overlay OCR (multi-pass/merge) + Tesseract fallback/label OCR helpers
+  fields.py       template parsing, normalization, ambiguity flags, plausibility rules
+  scene.py        OpenCV scene heuristics, verdict+confidence, sensor fusion
+  consistency.py  batch-level AWB consistency checks (+ review reasons)
+  pipeline.py     per-image orchestration, scene fusion, status/review decision
+  service.py      batch job: parallel processing, persist, CSV export
+  router.py       /parcel, /parcel/upload, /parcel/sample, job/CSV/download routes
+  README.md       this file
+data/sample/case1/            bundled sample frames (if present; used by "Run sample batch")
+data/parcel_samples/          bundled sample frames in some workspace states
+tests/test_parcel_pipeline.py
+tests/test_parcel_consistency.py
+tests/test_parcel_fields.py
+tests/test_parcel_formats.py
+tests/test_parcel_scene.py
+```
+
+## Sample I/O
+- **Input:** one parcel photo per file (JPG/PNG), or a ZIP of images.
+- **Output:** `outputs/parcel_job_<id>.csv` with one row per image and columns:
+  `filename, awb, weight_kg, length_cm, width_cm, height_cm, dimensions, status, needs_review, confidence, parcels_detected, scene_status, scene_confidence, review_reason, notes`
+- Example (illustrative): a clean read may be `SUCCESS` with populated fields and `needs_review=0`; an unreadable/no-AWB case may be `LABEL_UNREADABLE` with `needs_review=1`, empty AWB, and explanatory `review_reason`/`notes`. Exact values/counts depend on the image, environment, and current pipeline; use the CSV from each job as the authoritative batch record.
