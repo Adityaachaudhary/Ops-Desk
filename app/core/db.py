@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS job_events(id INTEGER PRIMARY KEY AUTOINCREMENT, job_
 CREATE TABLE IF NOT EXISTS parcel_results(
   id INTEGER PRIMARY KEY AUTOINCREMENT, job_id TEXT, idx INTEGER, filename TEXT, awb TEXT, weight_kg REAL,
   length_cm REAL, width_cm REAL, height_cm REAL, dimensions TEXT, status TEXT, needs_review INTEGER,
-  confidence REAL, parcels_detected INTEGER, notes TEXT);
+  confidence REAL, parcels_detected INTEGER, notes TEXT, scene_status TEXT, scene_confidence REAL, review_reason TEXT);
 CREATE INDEX IF NOT EXISTS ix_parcel_job ON parcel_results(job_id);
 CREATE TABLE IF NOT EXISTS compliance_results(
   id INTEGER PRIMARY KEY AUTOINCREMENT, job_id TEXT, idx INTEGER, employee TEXT, uan TEXT, ip_number TEXT,
@@ -51,6 +51,14 @@ CREATE TABLE IF NOT EXISTS pnl_inbox_seen(
 """
 
 
+def _migrate(c):
+    """Add columns introduced after a database was first created (CREATE TABLE IF NOT EXISTS never alters old tables)."""
+    have = {r[1] for r in c.execute("PRAGMA table_info(parcel_results)").fetchall()}
+    for col, typ in (("scene_status", "TEXT"), ("scene_confidence", "REAL"), ("review_reason", "TEXT")):
+        if col not in have:
+            c.execute(f"ALTER TABLE parcel_results ADD COLUMN {col} {typ}")
+
+
 def now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
 
@@ -65,6 +73,7 @@ def conn():
     if not _initialised:
         with _init_lock:
             c.executescript(SCHEMA)
+            _migrate(c)
             _initialised = True
     try:
         yield c

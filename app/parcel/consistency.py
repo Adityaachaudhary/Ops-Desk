@@ -31,6 +31,7 @@ def apply_batch_checks(rows: list[dict], min_group: int = 4) -> int:
                     break
             if reasons:
                 r["notes"] = "; ".join(filter(None, [r.get("notes", "")] + reasons))
+                r["review_reason"] = "; ".join(filter(None, [r.get("review_reason", "")] + reasons))
                 if r["status"] in CHECKED:
                     r["status"], r["needs_review"] = "LOW_CONFIDENCE", 1
                     changed += 1

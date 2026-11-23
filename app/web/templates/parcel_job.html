@@ -6,7 +6,7 @@
 {% endif %}
 <div class="card"><div class="card-h"><h2>Records</h2><input id="q" type="search" placeholder="Search AWB, file, note…" style="width:240px"></div>
  <div class="tag-row">{% for s, n in counts %}<button class="chip" data-chip="{{ s }}" title="{{ help[s] }}">{{ s|pretty }}<b>{{ n }}</b></button>{% endfor %}</div>
- <div class="tw"><table data-filterable><thead><tr><th>Frame</th><th>File</th><th>AWB</th><th class="num">Weight</th><th>Dimensions</th><th>Status</th><th class="num">Conf.</th><th>Why / notes</th></tr></thead>
+ <div class="tw"><table data-filterable><thead><tr><th>Frame</th><th>File</th><th>AWB</th><th class="num">Weight</th><th>Dimensions</th><th>Status</th><th class="num" title="OCR confidence">Read conf.</th><th class="num" title="How sure the picture check is that exactly one complete parcel is in frame (informational)">Scene conf.</th><th>Why / notes</th></tr></thead>
  <tbody id="live-rows">{% include "_parcel_rows.html" %}</tbody></table></div>
  {% if not rows %}<p class="muted">Records appear here as images are processed.</p>{% endif %}</div>
 {% if events %}<div class="log">{% for e in events %}<div class="{{ e.level }}">{{ e.ts }} · {{ e.message }}</div>{% endfor %}</div>{% endif %}

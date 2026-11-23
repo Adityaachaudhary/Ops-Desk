@@ -57,8 +57,24 @@ class _Ctx:
 NOREAD = re.compile(r"(?i)NO[\s_]?READ|^(NULL|UNKNOWN|ERROR|N/?A)$")
 
 
+def _collapse_repeat(s: str, o: Overlay) -> str:
+    """Some scanner templates print the barcode value two or three times back to back
+    ('310495170100913104951701009131049517010091' = 31049517010091 x3). Return one copy."""
+    for k in range(8, len(s) // 2 + 1):
+        if len(s) % k == 0 and s == s[:k] * (len(s) // k):
+            o.notes.append(f"barcode value was printed {len(s) // k}x in a row; one copy used")
+            return s[:k]
+    return s
+
+
 def _clean_awb(raw: str, o: Overlay) -> str | None:
     raw = raw.split(",")[0]
+    for tok in re.split(r"[_|;\s]+", raw):                      # PROC-type barcodes: 'PR0C0001129074' (O read as 0) -> PROC0001129074
+        t = re.sub(r"(?i)^PR[0O]C", "PROC", tok.strip("-:.;|/"))
+        if re.fullmatch(r"PROC\d{8,}", t):
+            if t != tok.strip("-:.;|/"):
+                o.notes.append("PROC barcode: 'O' misread as 0 corrected")
+            return t
     parts = [p for p in re.split(r"[_|]", raw) if p.strip()]
     if len(parts) > 1:  # "41306503_19109110324251" -> prefer the long numeric part
         longest = max(parts, key=lambda p: len(re.sub(r"\D", "", p)))
@@ -72,6 +88,7 @@ def _clean_awb(raw: str, o: Overlay) -> str | None:
     if not m:
         return None
     awb = m.group(0).upper()
+    awb = _collapse_repeat(awb, o)
     if not (8 <= len(awb) <= 24):
         return None
     m2 = re.fullmatch(r"(\d{10,16})([A-Z0-9]{1,8})", awb)
@@ -89,12 +106,13 @@ def _clean_awb(raw: str, o: Overlay) -> str | None:
 
 def parse_awb(text: str, o: Overlay) -> str | None:
     pat = re.compile(
-        r"(?im)^\W*(?:AWB[\s_]*(?:No|Number|Num)?[\s_]*\.?|Bar\s*code|"
+        r"(?im)^\W*(?:AWB[\s_]*(?:N[o0O]|Number|Num)?[\s_]*\.?|Bar\s*c[o0O]de(?:\s*[12]\s*D)?|"
         r"Tracking(?:\s*(?:No|Number|ID))?|Shipment\s*(?:Tracking\s*)?(?:No|Number|ID)|"
         r"Waybill(?:\s*(?:No|Number))?)\s*[:：=;\-]?\s*(.+)$"
     )
     for m in pat.finditer(text):
-        awb = _clean_awb(m.group(1), o)
+        val = re.sub(r"(?i)^\s*(?:N[o0O]\.?|Number|Num)\s*[:：=;\-]?\s*", "", m.group(1))   # 'AWB N0: 1910...' -> '1910...'
+        awb = _clean_awb(val, o)
         if awb:
             return awb
     return None
@@ -105,6 +123,19 @@ def parse_weight(text: str, o: Overlay) -> float | None:
     m = re.search(
         r"(?i)w[ea]i?[gq]h?t\s*(?:\(\s*(kgs?|g|gm)\s*\))?\s*[:：=;,]?\s*" + NUM + r"\s*(kgs?|kq|k9|gm|grams?|g)?\b", text)
     if not m:
+        # 'Weight:' label whose value sits later on the same text row ("Weight: Time: 6/19/2025 1:59 AM 2450.000 gm")
+        m3 = re.search(r"(?i)\bw[ea]i?[gq]h?t\b[^\n]{0,80}?(?<![\d.:/])(\d{1,6}(?:\.\d+)?)\s*(kgs?|gm|g)\b", text)
+        if m3:
+            val = float(m3.group(1))
+            kg = val if m3.group(2).lower().startswith("k") else val / 1000
+            o.notes.append("weight value found away from its label")
+            return round(kg, 3) if kg > 0 else None
+        # white-panel template: "A.W: 1560 g" is the actual weight ("V.W" is volumetric and ignored)
+        m4 = re.search(r"(?i)(?<![A-Za-z])A\.?\s*W\s*[:：]\s*(\d+(?:\.\d+)?)\s*(kgs?|g)\b", text)
+        if m4:
+            val = float(m4.group(1))
+            kg = val if m4.group(2).lower().startswith("k") else val / 1000
+            return round(kg, 3) if kg > 0 else None
         return None
     raw = c.num(m.group(2))
     if raw == "x":
@@ -166,6 +197,14 @@ def parse_dimensions(text: str, o: Overlay):
         if "x" not in raw:
             L, H, W = _scale(raw, "mm", o)
             return _nonzero([L, W, H], o)
+    # white-panel template: single-letter lines "L:40.4cm", "W: 31.7 cm", "H:14.4cm" (not the "A.W"/"V.W" weights)
+    pm = {}
+    for key in "LWH":
+        mm = re.search(rf"(?<![A-Za-z.]){key}\s*[:：]\s*(\d+(?:\.\d+)?)\s*(cm|mm)\b", text)
+        if mm:
+            pm[key] = (mm.group(1), mm.group(2))
+    if len(pm) == 3:
+        return _nonzero(_scale([pm[k][0] for k in "LWH"], pm["L"][1], o), o)
     m = re.search(
         r"(?i)(?:[do]im\w{0,8}s?(?:\s*\([^)]*\))?|L\s*[*xX]\s*[WB]\s*[*xX]\s*H)\s*[:：=;,]?\s*"
         + NUM + SEP + NUM + SEP + NUM + r"\s*(cm|mm)?", text)

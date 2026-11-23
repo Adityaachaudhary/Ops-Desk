@@ -98,14 +98,14 @@ def _counts(jid):
     return [(s, c.get(s, 0)) for s in STATUS_ORDER if c.get(s)]
 
 
+
 @router.get("/jobs/{jid}")
 def job_page(request: Request, jid: str):
     j = _job_or_404(jid)
     if not j:
         return render(request, "error.html", status_code=404, title="Job not found", message="This parcel job does not exist.")
     rows = db.query("SELECT * FROM parcel_results WHERE job_id=? ORDER BY idx", (jid,))
-    return render(request, "parcel_job.html", active="parcel", job=j, rows=rows, counts=_counts(jid), help=STATUS_HELP,
-                  events=jobs.events(jid, 8))
+    return render(request, "parcel_job.html", active="parcel", job=j, rows=rows, counts=_counts(jid), help=STATUS_HELP, events=jobs.events(jid, 8))
 
 
 @router.get("/jobs/{jid}/rows")

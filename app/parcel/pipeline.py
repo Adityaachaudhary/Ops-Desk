@@ -32,11 +32,12 @@ def _score(text: str) -> int:
 
 def _blank(name: str, status: str, note: str) -> dict:
     return {"filename": name, "awb": "", "weight_kg": None, "length_cm": None, "width_cm": None, "height_cm": None,
-            "dimensions": "", "status": status, "needs_review": 1, "confidence": 0.0, "parcels_detected": None, "notes": note}
+            "dimensions": "", "status": status, "needs_review": 1, "confidence": 0.0, "parcels_detected": None, "notes": note,
+            "scene_status": "", "scene_confidence": None, "review_reason": note}
 
 
 def process_image(path: Path) -> dict:
-    from . import ocr, scene  # lazy: Tesseract is needed for Case 1 only
+    from . import ocr, scene  # lazy: OCR engines are needed for Case 1 only
     name = Path(path).name
     try:
         with Image.open(path) as im:
@@ -88,21 +89,31 @@ def process_image(path: Path) -> dict:
         if label.awb and o.awb == label.awb:
             conf = min(conf, label_conf) if conf > 0 else label_conf
 
+    # ---- scene verdict: picture + what the scanner measured (see scene.fuse) ----
+    scene_status, scene_conf, scene_reason = scene.fuse(sc, o.weight_kg is not None, bool(o.dims_complete))
+    reasons = []
     status = None
-    if parcels == 0:
+    if scene_status == "NO_PARCEL":
         status = NO_PARCEL
-        notes.append("no parcel-like object found in frame")
-        if o.weight_kg is not None and o.dims_complete:
-            notes.append(f"scanner still reported {o.weight_kg:g} kg and dimensions - the frame may just be too dark; verify manually")
-    elif parcels > 1:
+        notes.append("no parcel-like object found in frame (confident: " + scene_reason + ")")
+        reasons.append("no parcel in frame")
+    elif scene_status == "MULTIPLE_PARCELS":
         status = MULTI
-        notes.append(f"{parcels} parcel-like objects in frame; overlay data cannot be tied to one parcel")
-    elif any(sc["cut"]):
+        notes.append(f"{parcels} parcel-like objects in frame; overlay data cannot be tied to one parcel ({scene_reason})")
+        reasons.append("more than one parcel")
+    elif scene_status == "PARTIAL_PARCEL":
         status = PARTIAL_PARCEL
         notes.append("parcel touches the frame edge (partly visible)")
+        reasons.append("parcel partly visible")
+    elif scene_status == "UNSURE":
+        # The picture alone cannot confirm "exactly one complete parcel". We do NOT guess a scene category and we do not
+        # block the row: the fields come from the scanner's own overlay (weight/dimensions measured the parcel) and the
+        # data status below decides. The doubt stays visible in scene_confidence + notes.
+        notes.append("scene not confirmed by picture (" + scene_reason + ")")
     if status is None:
         if o.awb is None:
             status = UNREADABLE
+            reasons.append("AWB could not be read")
             if sc["barcodes"]:
                 notes.append("barcode region detected, but its value could not be decoded; label may be covered or unreadable")
             else:
@@ -110,18 +121,23 @@ def process_image(path: Path) -> dict:
         elif o.risky or issues or conf < MIN_OCR_CONF:
             status = LOW_CONF
             notes += o.risky + issues
+            reasons += o.risky + issues
             if conf < MIN_OCR_CONF:
                 notes.append(f"OCR confidence {conf:.0f}% is low")
+                reasons.append(f"OCR confidence {conf:.0f}% is low")
         elif o.weight_kg is not None and o.dims_complete:
             status = SUCCESS
         else:
             status = PARTIAL_EX
             missing = [k for k, v in (("weight", o.weight_kg), ("dimensions", o.dims_complete or None)) if v is None]
             notes.append("missing: " + ", ".join(missing))
-    else:
-        if o.risky or issues:
-            notes += o.risky + issues
+            reasons.append("missing: " + ", ".join(missing))
+    elif o.risky or issues:
+        notes += o.risky + issues
+        reasons += o.risky + issues
     confidence = 0.0 if not o.awb else round(min(100.0, conf) * (0.6 if (o.risky or issues) else 1.0), 1)
     return {"filename": name, "awb": o.awb or "", "weight_kg": o.weight_kg, "length_cm": o.length_cm, "width_cm": o.width_cm,
             "height_cm": o.height_cm, "dimensions": o.dims_text(), "status": status, "needs_review": 0 if status == SUCCESS else 1,
-            "confidence": confidence, "parcels_detected": parcels, "notes": "; ".join(dict.fromkeys(notes))}
+            "confidence": confidence, "parcels_detected": parcels, "notes": "; ".join(dict.fromkeys(notes)),
+            "scene_status": scene_status, "scene_confidence": float(scene_conf),
+            "review_reason": "" if status == SUCCESS else "; ".join(dict.fromkeys(reasons))}

@@ -11,7 +11,7 @@ from .consistency import apply_batch_checks
 
 IMG_EXT = {".jpg", ".jpeg", ".png"}
 CSV_COLS = ["filename", "awb", "weight_kg", "length_cm", "width_cm", "height_cm", "dimensions", "status", "needs_review",
-            "confidence", "parcels_detected", "notes"]
+            "confidence", "parcels_detected", "scene_status", "scene_confidence", "review_reason", "notes"]
 
 
 def expand_zips(folder: Path, max_files: int = 2000):
@@ -66,7 +66,8 @@ def handle(job, ctx):
         except Exception as e:  # one bad image must not sink the batch
             r = {"filename": f.name, "awb": "", "weight_kg": None, "length_cm": None, "width_cm": None, "height_cm": None, "dimensions": "",
                  "status": "INVALID_IMAGE", "needs_review": 1, "confidence": 0.0, "parcels_detected": None,
-                 "notes": f"Processing error: {type(e).__name__}: {e}"[:300], "_ok": False}
+                 "notes": f"Processing error: {type(e).__name__}: {e}"[:300], "scene_status": "", "scene_confidence": None,
+                 "review_reason": f"Processing error: {type(e).__name__}"[:300], "_ok": False}
         r["idx"] = i
         return r
 
@@ -81,11 +82,12 @@ def handle(job, ctx):
             ctx.progress(done, failed, message=f"Processed {done}/{len(files)}")
     db.insert_many("parcel_results", buf)
     rows = db.query("SELECT * FROM parcel_results WHERE job_id=? ORDER BY idx", (jid,))
-    before = {r["id"]: (r["status"], r["notes"]) for r in rows}
+    before = {r["id"]: (r["status"], r["notes"], r.get("review_reason")) for r in rows}
     apply_batch_checks(rows)  # cross-record sanity: odd AWB length / rare prefix -> LOW_CONFIDENCE
     for r in rows:
-        if (r["status"], r["notes"]) != before[r["id"]]:
-            db.execute("UPDATE parcel_results SET status=?, needs_review=?, notes=? WHERE id=?", (r["status"], r["needs_review"], r["notes"], r["id"]))
+        if (r["status"], r["notes"], r.get("review_reason")) != before[r["id"]]:
+            db.execute("UPDATE parcel_results SET status=?, needs_review=?, notes=?, review_reason=? WHERE id=?",
+                       (r["status"], r["needs_review"], r["notes"], r.get("review_reason"), r["id"]))
     out = OUTPUT_DIR / f"parcel_{jid}.csv"
     with open(out, "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=CSV_COLS, extrasaction="ignore")
@@ -93,4 +95,4 @@ def handle(job, ctx):
         w.writerows(rows)
     ok = sum(1 for r in rows if r["status"] == "SUCCESS")
     return {"processed": len(files), "failed": failed, "output_path": str(out),
-            "message": f"{len(files)} images: {ok} clean reads, {len(files) - ok} flagged for review"}
+            "message": f"{len(files)} images: {ok} clean reads, {len(files) - ok} flagged"}
